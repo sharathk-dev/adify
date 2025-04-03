@@ -26,9 +26,13 @@ logs/
 .DS_Store
 
 # Database
-*.sql
 *.sqlite
 dump.rdb
+# SQL dumps and backups, but not schema files
+*_dump.sql
+*_backup.sql
+*.dump.sql
+*.bak.sql
 
 # Testing
 /coverage
