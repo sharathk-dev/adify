@@ -2,7 +2,7 @@ import { insertAdClick } from "../models/AdClick.js"; // Adjust the import path 
 
 async function recordClickLogger(req, res) {
     try {
-        const { adId, memberId, isClicked } = req.body; // Get data from request body
+        const { adId, memberId, isClicked} = req.body; // Get data from request body
         return res.status(201).json({ message: "Ad click recorded" });
 
         if (!adId || !memberId) {
