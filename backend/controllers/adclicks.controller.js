@@ -10,13 +10,12 @@ async function recordClickLogger(req, res) {
             return res.status(400).json({ error: "adId and memberId are required" });
         }
         let getRecord = await AdClick.getAdClick(transactionId)
-        let newClick = ''
         if(!getRecord){
-             newClick = await AdClick.insertAdClick(adId, memberId, isClicked);
+            await AdClick.insertAdClick(adId, memberId, isClicked);
         }else{
-            newClick = await AdClick.updateAdClick(transactionId)
+            await AdClick.updateAdClick(transactionId)
         }
-        return res.status(201).json({ message: "Ad click recorded", data: newClick });
+        return res.status(201).json({ message: "Ad click recorded" });
     } catch (error) {
         console.error("Error recording ad click:", error);
         return res.status(500).json({ error: "Internal Server Error" });

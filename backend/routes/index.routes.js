@@ -6,7 +6,7 @@ import { getMatchedAds } from "../controllers/matchingEngine.controller.js";
 const router = express.Router();
 
 // Route for recording ad clicks
-router.post("/clickLogger", recordClickLogger);
+router.post("/addEvents", recordClickLogger);
 
 // Route for getting recommended ads for a user
 router.get("/user/:userId", (req, res) => {
