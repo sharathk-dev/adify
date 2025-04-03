@@ -37,8 +37,11 @@ export const signin = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const member = await Member.findMember(email);
 
+        const member = await Member.findOne({ where: { email } });
+        console.log("memberrrr")
+        console.log(member)
+        
         if (!member) {
             throw new Error('Member not found');
         }
@@ -58,8 +61,7 @@ export const login = async (req, res) => {
                 member
             }
         });
-    } 
-    catch (error) {
+    } catch (error) {
         res.status(500).json({ message: 'Error loggin in, ', error: error.message });
     }
 }
