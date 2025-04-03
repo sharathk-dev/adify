@@ -38,6 +38,21 @@ export default (sequelize, DataTypes) => {
         vehicleDetails: {
             type: DataTypes.JSON
         },
+        total: {
+            type: DataTypes.DECIMAL(10,2),
+            allowNull: false,
+            defaultValue: 0.00
+        },
+        discount: {
+            type: DataTypes.DECIMAL(10,2),
+            allowNull: false,
+            defaultValue: 0.00
+        },
+        paid: {
+            type: DataTypes.DECIMAL(10,2),
+            allowNull: false,
+            defaultValue: 0.00
+        }
     }, {
         tableName: 'transactions',
         timestamps: true
