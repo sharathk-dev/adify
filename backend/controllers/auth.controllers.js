@@ -36,10 +36,9 @@ export const signin = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        const { contact, password } = req.body;
+        const { email, password } = req.body;
+        const member = await Member.findMember(email);
 
-        const member = await Member.findOne({ contact } );
-        
         if (!member) {
             throw new Error('Member not found');
         }
@@ -59,11 +58,12 @@ export const login = async (req, res) => {
                 member
             }
         });
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ message: 'Error loggin in, ', error: error.message });
     }
 }
 
-const createJWT = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-}
+    const createJWT = (id) => {
+        return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    }
