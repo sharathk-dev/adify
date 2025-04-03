@@ -1,5 +1,5 @@
 -- Advertisers seeder
-INSERT INTO advertisers (advertiser_name, created_at, updated_at)
+INSERT INTO advertisers (advertiserName, createdAt, updatedAt)
 VALUES 
 ('McDonalds', NOW(), NOW()),
 ('Nike Store', NOW(), NOW()),

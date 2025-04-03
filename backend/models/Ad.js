@@ -1,4 +1,6 @@
-export default (sequelize, DataTypes) => {
+import sequelize from '../db.js';
+import { DataTypes } from 'sequelize';
+
   const Ad = sequelize.define('Ad', {
     id: {
       type: DataTypes.BIGINT,
@@ -51,7 +53,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'categories',
+        model: 'adCategories',
         key: 'id'
       }
     }
@@ -86,5 +88,14 @@ export default (sequelize, DataTypes) => {
     });
   };
 
-  return Ad;
-}; 
+  Ad.findAllAds = async () => {
+    const ads = await Ad.findAll();
+    return ads;
+  };
+
+  Ad.findByPk = async (id) => {
+    const ad = await Ad.findByPk(id);
+    return ad;
+  };
+
+  export default Ad;

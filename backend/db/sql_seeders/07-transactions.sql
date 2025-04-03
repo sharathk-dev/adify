@@ -1,4 +1,4 @@
-INSERT INTO transactions (member_id, location_id, vehicle_number, entry_time, exit_time, vehicle_details, total, discount, service_fee, paid)
+INSERT INTO transactions (memberId, locationId, vehicleNumber, entryTime, exitTime, vehicleDetails, total, discount, serviceFee, paid)
 VALUES
 (13, 1, 'VPPOQW', '2025-04-01 08:12:08', '2025-04-01 10:12:08', '{"make": "Hyundai", "model": "Camry", "color": "White", "type": "Petrol"}', 19.86, 5.45, 0.99, 15.40),
 (92, 9, '8WN7QL', '2025-03-31 19:12:08', '2025-03-31 22:12:08', '{"make": "Chevrolet", "model": "Elantra", "color": "Black", "type": "Electric"}', 17.4, 4.47, 0.99, 13.92),

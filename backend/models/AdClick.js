@@ -1,5 +1,7 @@
-export default (sequelize, DataTypes) => {
-  const AdClick = sequelize.define('AdClick', {
+import sequelize from '../db.js';
+import { DataTypes } from 'sequelize';
+
+const AdClick = sequelize.define('AdClick', {
     id: {
       type: DataTypes.BIGINT,
       primaryKey: true,
@@ -26,11 +28,11 @@ export default (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     },
     isClicked: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+      type: DataTypes.BIGINT,
+      defaultValue: false,
     }
   }, {
-    tableName: 'ad_clicks',
+    tableName: 'adClicks',
     timestamps: true
   });
 
@@ -54,8 +56,7 @@ export default (sequelize, DataTypes) => {
     });
   };
 
-  return AdClick;
-}; 
+export default AdClick;
 
 async function insertAdClick(adId, memberId, isClicked = false) {
   try {
@@ -64,7 +65,7 @@ async function insertAdClick(adId, memberId, isClicked = false) {
           throw new Error("adId and memberId are required");
       }
 
-      // Insert record into the ad_clicks table
+      // Insert record into the adClicks table
       const newClick = await AdClick.create({
           adId,
           memberId,

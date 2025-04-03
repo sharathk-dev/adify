@@ -1,5 +1,5 @@
 -- Ad clicks seeder
-INSERT INTO ad_clicks (ad_id, member_id, timestamp, is_clicked)
+INSERT INTO adClicks (adId, memberId, timestamp, isClicked)
 VALUES 
 (1, 1, DATE_SUB(NOW(), INTERVAL 5 DAY), false),
 (2, 1, DATE_SUB(NOW(), INTERVAL 4 DAY), false),

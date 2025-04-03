@@ -1,7 +1,9 @@
-export default (sequelize, DataTypes) => {
-    const Location = sequelize.define('Location', {
-        id: {
-            type: DataTypes.BIGINT,
+import sequelize from '../db.js';
+import { DataTypes } from 'sequelize';
+
+const Location = sequelize.define('Location', {
+    id: {
+        type: DataTypes.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
@@ -31,5 +33,4 @@ export default (sequelize, DataTypes) => {
         });
     };
 
-    return Location;
-};
+export default Location;

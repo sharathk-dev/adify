@@ -1,5 +1,5 @@
 -- Members seeder
-INSERT INTO members (name, email, contact, password, vehicles, card_details) VALUES
+INSERT INTO members (name, email, contact, password, vehicles, cardDetails) VALUES
 ('Mike Cooper', 'mike.cooper@example.com', '+10000000000', '$2a$10$rK7YGz9CjVqF1Ky1Q5vTUeJwkz.KPeQ5XRxK9Y5Y9Y5Y9Y5Y9Y', '["LSV26C", "N43LTT"]', '{"cardNumber": "4958", "expiryDate": "02/2024", "cvv": "535"}'),
 ('Cathy Wall', 'cathy.wall@example.com', '+10000000001', '$2a$10$rK7YGz9CjVqF1Ky1Q5vTUeJwkz.KPeQ5XRxK9Y5Y9Y5Y9Y5Y9Y', '["SHV1BP"]', '{"cardNumber": "3379", "expiryDate": "10/2024", "cvv": "223"}'),
 ('Jennifer Charles', 'jennifer.charles@example.com', '+10000000002', '$2a$10$rK7YGz9CjVqF1Ky1Q5vTUeJwkz.KPeQ5XRxK9Y5Y9Y5Y9Y5Y9Y', '["FVO2HT"]', '{"cardNumber": "7684", "expiryDate": "02/2027", "cvv": "332"}'),
