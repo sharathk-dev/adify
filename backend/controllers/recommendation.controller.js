@@ -24,7 +24,7 @@ const categories = [
 ];
 
 const transactions = [
-    { uid: 1001, user_id: 1, transactionId: "abcd-1234", vehicleModel: "Toyota Camry", entryTime: "2024-04-01T12:00:00Z", exitTime: "2024-04-01T14:00:00Z", location_code: 101, vehicleNumber: "XYZ-1234" }
+    { uid: 1001, user_id: 1,totalAmount:"10.00",paidAmount:"2.00",fee:"4.00", transactionId: "abcd-1234", vehicleModel: "Toyota Camry", entryTime: "2024-04-01T12:00:00Z", exitTime: "2024-04-01T14:00:00Z", location_code: 101, vehicleNumber: "XYZ-1234" }
 ];
 
 const adClicks = [
@@ -49,10 +49,15 @@ function getUserClickedCategories(userId) {
 
 // Main function to get recommended ads
 export function getRecommendedAds(userId) {
+
     const userLocation = getLastTransactionLocation(userId);
     const userClickedCategories = getUserClickedCategories(userId);
 
-    // Get ads that match user's location
+    // Get the last transaction details for the user
+    const lastTransaction = _.last(transactions.filter(t => t.user_id === userId));
+
+    if (!lastTransaction) return [];
+
     let relevantAds = ads.filter(ad => ad.locationIds.includes(userLocation));
 
     // Prioritize ads based on category clicks
@@ -61,6 +66,21 @@ export function getRecommendedAds(userId) {
     }
 
     // Sort ads by highest CPC (Cost Per Click)
-    return _.orderBy(relevantAds, ["CPC"], ["desc"]);
+    relevantAds = _.orderBy(relevantAds, ["CPC"], ["desc"]);
+
+    // Prepare the final response
+    return {
+        licensePlate: lastTransaction.vehicleNumber,
+        entryTime: lastTransaction.entryTime,
+        exitTime: lastTransaction.exitTime,
+        paidAmount: lastTransaction.paidAmount,
+        totalAmount: lastTransaction.totalAmount,
+        fee: lastTransaction.fee,
+        recommended_ads: relevantAds.map(ad => ({
+            ad_url: ad.ad_url,
+            target_url: ad.image_url, // Ensure your ad objects have target_url
+        })),
+    };
 }
+
 
