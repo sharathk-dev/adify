@@ -1,6 +1,13 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import Member from '../models/Member.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const createJWT = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
 
 export const signin = async (req, res) => {
     try {
@@ -66,6 +73,22 @@ export const login = async (req, res) => {
     }
 }
 
-    const createJWT = (id) => {
-        return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+
+export const verifyToken = (req, res, next) => {
+    
+    let authHeader = req.headers['authorization'];
+    let receivedToken = req.headers.authorization?.split(" ")[1];  
+    let token = receivedToken.replace(/['"]+/g, '').trim();
+
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized, token missing" });
     }
+    try {
+        const decoded = jwt.verify(token,process.env.JWT_SECRET);
+        req.user = decoded;  // Attach user ID to request
+        next();  // Proceed to next middleware
+    } catch (error) {
+        return res.status(403).json({ message: "Invalid or expired token" });
+    }
+};

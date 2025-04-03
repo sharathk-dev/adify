@@ -3,11 +3,12 @@ import { recordClickLogger } from "../controllers/adclicks.controller.js";
 import { getRecommendedAds } from "../controllers/recommendation.controller.js";
 import { getMatchedAds } from "../controllers/matchingEngine.controller.js";
 import { login } from "../controllers/auth.controllers.js";
+import { verifyToken } from "../controllers/auth.controllers.js";
 
 const router = express.Router();
 
 // Route for recording ad clicks
-router.post("/addEvents", recordClickLogger);
+router.post("/addEvents",verifyToken, recordClickLogger);
 
 // Route for getting recommended ads for a user
 router.get("/user/:userId", (req, res) => {
@@ -17,7 +18,7 @@ router.get("/user/:userId", (req, res) => {
 });
 
 // New matching engine route - get personalized ads for a member
-router.get("/recommendations/member/:memberId", getMatchedAds);
+router.get("/recommendations/member/:memberId",verifyToken, getMatchedAds);
 
 router.post("/login",login)
 
