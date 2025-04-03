@@ -1,118 +1,76 @@
-import sequelize from '../db.js';
-import { DataTypes } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
+import sequelize from '../db.js'; 
 
-const AdClick = sequelize.define('AdClick', {
+
+
+const AdClick = sequelize.define(
+  'AdClick',
+  {
     id: {
-      type: DataTypes.BIGINT,
+      type: DataTypes.BIGINT, 
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     adId: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      references: {
-        model: 'ads',
-        key: 'id'
-      }
+      references: { model: 'ads', key: 'id' },
     },
     memberId: {
-      type: DataTypes.INT,
+      type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'members',
-        key: 'id'
-      }
+      references: { model: 'members', key: 'id' },
     },
     timestamp: {
       type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
+      defaultValue: DataTypes.NOW,
     },
     isClicked: {
-      type: DataTypes.BIGINT,
-      defaultValue: false,
-    }
-  }, {
-    tableName: 'adClicks',
-    timestamps: true
-  });
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+  },
+  {
+    tableName: 'ad_clicks',
+    timestamps: true,
+    underscored: true
+  }
+);
 
-  AdClick.associate = (models) => {
-    // Many-to-One with Ad
-    AdClick.belongsTo(models.Ad, {
-      foreignKey: {
-        name: 'adId',
-        allowNull: false
-      },
-      onDelete: 'CASCADE'
-    });
+// Add as static method
+AdClick.getAdClick = async (transactionId) => {
+  try {
+    return await AdClick.findOne({ where: { id: transactionId } });
+  } catch (error) {
+    console.error('Error fetching ad click:', error);
+    throw error;
+  }
+};
 
-    // Many-to-One with Member
-    AdClick.belongsTo(models.Member, {
-      foreignKey: {
-        name: 'memberId',
-        allowNull: false
-      },
-      onDelete: 'CASCADE'
-    });
-  };
+
+
+
+AdClick.insertAdClick = async (adId, memberId) => {
+  try {
+    if (!adId || !memberId) throw new Error('adId and memberId are required');
+    return await AdClick.create({ adId, memberId, isClicked: 0 });
+  } catch (error) {
+    console.error('Error inserting ad click:', error);
+    throw error;
+  }
+};
+
+
+AdClick.updateAdClick = async (transactionId) => {
+  try {
+    return await sequelize.query(
+      `UPDATE ad_clicks SET is_clicked = is_clicked + 1 WHERE id = :transactionId`,
+      { replacements: { transactionId }, type: sequelize.QueryTypes.UPDATE }
+    );
+  } catch (error) {
+    console.error('Error updating ad click:', error);
+    throw error;
+  }
+};
 
 export default AdClick;
-
-async function insertAdClick(adId, memberId, isClicked = false) {
-  try {
-      // Validate input
-      if (!adId || !memberId) {
-          throw new Error("adId and memberId are required");
-      }
-
-      // Insert record into the adClicks table
-      const newClick = await AdClick.create({
-          adId,
-          memberId,
-          isClicked,
-          timestamp: new Date(), // Store the current timestamp
-      });
-
-      console.log("Ad Click recorded successfully:", newClick);
-      return newClick;
-  } catch (error) {
-      console.error("Error inserting ad click:", error);
-      throw error; // Re-throw error for handling at a higher level
-  }
-}
-
-async function getAdClick(transactionId){
-  try{
-    if(!transactionId){
-      throw new Error("TransactionId are required")
-    }
-
-     await AdClick.findOne({ where: { transactionId } }) ? true : false
-
-  }catch{
-
-  }
-}
-
-async function updateAdClick(transactionId) {
-  try {
-    if (!transactionId) {
-      throw new Error("TransactionId is required");
-    }
-
-    await sequelize.query(
-      `UPDATE ad_clicks SET is_clicked = is_clicked + 1 WHERE id = :transactionId`,
-      {
-        replacements: { transactionId },
-        type: sequelize.QueryTypes.UPDATE,
-      }
-    );
-
-    console.log(`Ad click count updated for transaction ID: ${transactionId}`);
-  } catch (error) {
-    console.error("Error updating ad click:", error);
-  }
-}
-
-
-export { insertAdClick,getAdClick };
