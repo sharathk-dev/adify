@@ -56,3 +56,28 @@ export default (sequelize, DataTypes) => {
 
   return AdClick;
 }; 
+
+async function insertAdClick(adId, memberId, isClicked = false) {
+  try {
+      // Validate input
+      if (!adId || !memberId) {
+          throw new Error("adId and memberId are required");
+      }
+
+      // Insert record into the ad_clicks table
+      const newClick = await AdClick.create({
+          adId,
+          memberId,
+          isClicked,
+          timestamp: new Date(), // Store the current timestamp
+      });
+
+      console.log("Ad Click recorded successfully:", newClick);
+      return newClick;
+  } catch (error) {
+      console.error("Error inserting ad click:", error);
+      throw error; // Re-throw error for handling at a higher level
+  }
+}
+
+export { insertAdClick };
