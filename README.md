@@ -39,6 +39,21 @@ Adify is a full-stack contextual ad and service engine for parking sessions. It 
      - Ad Clicks
      - Transactions
 
+#### Database Configuration
+
+The database connection details are loaded from the `.env` file in the `backend` directory. Copy the example environment file and update it with your values:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Edit `backend/.env` with your database credentials. The following variables are required:
+- `MYSQL_HOST`
+- `MYSQL_PORT`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_DATABASE`
+
 ### Development
 
 More instructions will be added as the project develops.

@@ -1,14 +1,26 @@
 #!/bin/bash
 
-# Change to the script's directory
-cd "$(dirname "$0")"
+# Get the absolute path to the backend directory
+BACKEND_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Database connection details
-DB_HOST="localhost"
-DB_PORT="3306"
-DB_USER="adify"
-DB_PASS="adify123"
-DB_NAME="adify"
+# Load environment variables from .env file
+if [ -f "$BACKEND_DIR/.env" ]; then
+    source "$BACKEND_DIR/.env"
+fi
+
+# Map MYSQL_ variables to DB_ variables
+DB_HOST=${MYSQL_HOST}
+DB_PORT=${MYSQL_PORT}
+DB_USER=${MYSQL_USER}
+DB_PASS=${MYSQL_PASSWORD}
+DB_NAME=${MYSQL_DATABASE}
+
+# Validate required environment variables
+if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASS" ] || [ -z "$DB_NAME" ]; then
+    echo "Error: Required database environment variables are not set."
+    echo "Please ensure MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, and MYSQL_DATABASE are set in $BACKEND_DIR/.env"
+    exit 1
+fi
 
 # Function to run a SQL file
 run_sql_file() {
@@ -32,14 +44,14 @@ EOF
 
 # Initialize database schema
 echo "Initializing database schema..."
-docker exec -i -e MYSQL_PWD="$DB_PASS" adify-mysql mysql -u"$DB_USER" "$DB_NAME" < "../db/init.sql"
+docker exec -i -e MYSQL_PWD="$DB_PASS" adify-mysql mysql -u"$DB_USER" "$DB_NAME" < "$BACKEND_DIR/db/init.sql"
 
 # Run cleanup first
 echo "Running cleanup..."
-run_sql_file "../db/sql_seeders/cleanup.sql"
+run_sql_file "$BACKEND_DIR/db/sql_seeders/cleanup.sql"
 
 # Run all seeders in numerical order
-cd "../db/sql_seeders"
+cd "$BACKEND_DIR/db/sql_seeders"
 for file in $(ls -v *.sql | grep -v cleanup.sql); do
     run_sql_file "$file"
 done
