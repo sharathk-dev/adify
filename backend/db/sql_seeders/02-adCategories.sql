@@ -1,5 +1,5 @@
--- Categories seeder
-INSERT INTO ad_categories (category)
+-- AdCategories seeder
+INSERT INTO adCategories (category)
 VALUES 
 ('Food & Beverages'),
 ('Fashion & Apparel'),

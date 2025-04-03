@@ -1,6 +1,8 @@
-export default (sequelize, DataTypes) => {
-  const AdCategory = sequelize.define('AdCategory', {
-    id: {
+import sequelize from '../db.js';
+import { DataTypes } from 'sequelize';
+
+const AdCategory = sequelize.define('AdCategory', {
+  id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
@@ -11,7 +13,7 @@ export default (sequelize, DataTypes) => {
       unique: true
     }
   }, {
-    tableName: 'ad_categories',
+    tableName: 'adCategories',
     timestamps: true
   });
 
@@ -23,5 +25,4 @@ export default (sequelize, DataTypes) => {
     });
   };
 
-  return AdCategory;
-}; 
+export default AdCategory;

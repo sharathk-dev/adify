@@ -1,5 +1,5 @@
 -- Ads seeder
-INSERT INTO ads (advertiser_id, ad_url, image_url, location_ids, cost_to_click, category_id)
+INSERT INTO ads (advertiserId, adUrl, imageUrl, locationIds, costToClick, categoryId)
 VALUES 
 (1, 'https://mcdonalds.com/promotions', 'https://mcdonalds.com/images/happy-meal.jpg', '[1]', 0.50, 1),
 (2, 'https://nike.com/sale', 'https://nike.com/images/summer-sale.jpg', '[2,3]', 0.75, 2),

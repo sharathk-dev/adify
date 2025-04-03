@@ -1,10 +1,9 @@
-import sequelize from "../db";
+import sequelize from "../db.js";
 import { DataTypes, ENUM, STRING } from 'sequelize';
 
-export default (sequelize, DataTypes) => {
-    const Transaction = sequelize.define('Transaction', {
-        id: {
-            type: DataTypes.BIGINT,
+const Transaction = sequelize.define('Transaction', {
+    id: {
+        type: DataTypes.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
@@ -83,5 +82,4 @@ export default (sequelize, DataTypes) => {
         });
     };
 
-    return Transaction;
-};
+export default Transaction;

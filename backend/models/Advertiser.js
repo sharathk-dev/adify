@@ -1,4 +1,6 @@
-export default (sequelize, DataTypes) => {
+import sequelize from '../db.js';
+import { DataTypes } from 'sequelize';
+
   const Advertiser = sequelize.define('Advertiser', {
     id: {
       type: DataTypes.INTEGER,
@@ -8,7 +10,7 @@ export default (sequelize, DataTypes) => {
     advertiserName: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     }
   }, {
     tableName: 'advertisers',
@@ -23,5 +25,4 @@ export default (sequelize, DataTypes) => {
     });
   };
 
-  return Advertiser;
-};
+export default Advertiser;

@@ -1,10 +1,9 @@
 import sequelize from '../db.js';
 import { DataTypes } from 'sequelize';
 
-export default (sequelize, DataTypes) => {
-    const Member = sequelize.define('Member', {
-        id: {
-            type: DataTypes.INTEGER,
+const Member = sequelize.define('Member', {
+    id: {
+        type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
@@ -52,5 +51,16 @@ export default (sequelize, DataTypes) => {
         });
     };
 
-    return Member;
-};
+export default Member;
+
+async function findByPk(id) {
+    try {
+        const member = await Member.findByPk(id);
+        return member;
+    } catch (error) {
+        console.error("Error finding member by ID:", error);
+        throw error;
+    }
+}
+
+export { findByPk };

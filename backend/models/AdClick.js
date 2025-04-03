@@ -1,5 +1,7 @@
-export default (sequelize, DataTypes) => {
-  const AdClick = sequelize.define('AdClick', {
+import sequelize from '../db.js';
+import { DataTypes } from 'sequelize';
+
+const AdClick = sequelize.define('AdClick', {
     id: {
       type: DataTypes.BIGINT,
       primaryKey: true,
@@ -14,7 +16,7 @@ export default (sequelize, DataTypes) => {
       }
     },
     memberId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INT,
       allowNull: false,
       references: {
         model: 'members',
@@ -26,11 +28,11 @@ export default (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     },
     isClicked: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+      type: DataTypes.BIGINT,
+      defaultValue: false,
     }
   }, {
-    tableName: 'ad_clicks',
+    tableName: 'adClicks',
     timestamps: true
   });
 
@@ -54,8 +56,7 @@ export default (sequelize, DataTypes) => {
     });
   };
 
-  return AdClick;
-}; 
+export default AdClick;
 
 async function insertAdClick(adId, memberId, isClicked = false) {
   try {
@@ -64,7 +65,7 @@ async function insertAdClick(adId, memberId, isClicked = false) {
           throw new Error("adId and memberId are required");
       }
 
-      // Insert record into the ad_clicks table
+      // Insert record into the adClicks table
       const newClick = await AdClick.create({
           adId,
           memberId,
@@ -80,4 +81,38 @@ async function insertAdClick(adId, memberId, isClicked = false) {
   }
 }
 
-export { insertAdClick };
+async function getAdClick(transactionId){
+  try{
+    if(!transactionId){
+      throw new Error("TransactionId are required")
+    }
+
+     await AdClick.findOne({ where: { transactionId } }) ? true : false
+
+  }catch{
+
+  }
+}
+
+async function updateAdClick(transactionId) {
+  try {
+    if (!transactionId) {
+      throw new Error("TransactionId is required");
+    }
+
+    await sequelize.query(
+      `UPDATE ad_clicks SET is_clicked = is_clicked + 1 WHERE id = :transactionId`,
+      {
+        replacements: { transactionId },
+        type: sequelize.QueryTypes.UPDATE,
+      }
+    );
+
+    console.log(`Ad click count updated for transaction ID: ${transactionId}`);
+  } catch (error) {
+    console.error("Error updating ad click:", error);
+  }
+}
+
+
+export { insertAdClick,getAdClick };
