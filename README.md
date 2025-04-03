@@ -17,9 +17,14 @@ Adify is a full-stack contextual ad and service engine for parking sessions. It 
    docker start adify-mysql
    ```
 
-2. Initialize and seed the database:
+2. Create the database:
    ```bash
-   ./backend/db/sql_seeders/seed.sh
+   ./backend/scripts/setup_db.sh
+   ```
+
+3. Initialize and seed the database:
+   ```bash
+   ./backend/scripts/seed.sh
    ```
 
    This script will:

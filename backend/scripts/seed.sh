@@ -32,13 +32,14 @@ EOF
 
 # Initialize database schema
 echo "Initializing database schema..."
-docker exec -i -e MYSQL_PWD="$DB_PASS" adify-mysql mysql -u"$DB_USER" "$DB_NAME" < "../init.sql"
+docker exec -i -e MYSQL_PWD="$DB_PASS" adify-mysql mysql -u"$DB_USER" "$DB_NAME" < "../db/init.sql"
 
 # Run cleanup first
 echo "Running cleanup..."
-run_sql_file "cleanup.sql"
+run_sql_file "../db/sql_seeders/cleanup.sql"
 
 # Run all seeders in numerical order
+cd "../db/sql_seeders"
 for file in $(ls -v *.sql | grep -v cleanup.sql); do
     run_sql_file "$file"
 done
