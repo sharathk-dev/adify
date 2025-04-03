@@ -1,15 +1,19 @@
-import { insertAdClick } from "../models/AdClick.js"; // Adjust the import path based on your setup
+import { insertAdClick,getAdClick } from "../models/AdClick.js"; // Adjust the import path based on your setup
 
 async function recordClickLogger(req, res) {
     try {
-        const { adId, memberId, isClicked} = req.body; // Get data from request body
-        return res.status(201).json({ message: "Ad click recorded" });
-
+        const { adId, memberId,transactionId, isClicked} = req.body; // Get data from request body
         if (!adId || !memberId) {
-            return res.status(400).json({ error: "adId and memberId are required" });
+        let getRecord = await getAdClick(transactionId)
+        if(!getRecord){
+            const newClick = await insertAdClick(adId, memberId, isClicked);
+        }else{
+            await updateAdClick(transactionId)
+        }
+          return res.status(400).json({ error: "adId and memberId are required" });
         }
 
-        const newClick = await insertAdClick(adId, memberId, isClicked);
+       
         
 
         // return res.status(201).json({ message: "Ad click recorded", data: newClick });
