@@ -29,7 +29,6 @@ export default (sequelize, DataTypes) => {
         },
         vehicles: {
             type: DataTypes.ARRAY(DataTypes.STRING),
-            allowNull: false,
         },
         cardDetails: {
             type: DataTypes.JSON,
