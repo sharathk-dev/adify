@@ -1,5 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import sequelize from '../db.js'; 
+import Member from './Member.js';
+import Ad from './Ad.js';
 
 
 
@@ -36,6 +38,11 @@ const AdClick = sequelize.define(
     underscored: true
   }
 );
+
+
+AdClick.belongsTo(Ad, { foreignKey: 'adId' }); // Defaults to Ad.id
+AdClick.belongsTo(Member, { foreignKey: 'memberId' }); // Defaults to Member.id
+
 
 // Add as static method
 AdClick.getAdClick = async (transactionId) => {
