@@ -36,9 +36,11 @@ export const signin = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        const { contact, password } = req.body;
+        const { email, password } = req.body;
 
-        const member = await Member.findOne({ contact } );
+        const member = await Member.findOne({ where: { email } });
+        console.log("memberrrr")
+        console.log(member)
         
         if (!member) {
             throw new Error('Member not found');
@@ -64,6 +66,6 @@ export const login = async (req, res) => {
     }
 }
 
-const createJWT = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-}
+    const createJWT = (id) => {
+        return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    }
