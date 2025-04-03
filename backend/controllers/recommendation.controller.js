@@ -78,10 +78,10 @@ export function getRecommendedAds(userId) {
         paidAmount: lastTransaction.paidAmount,
         totalAmount: lastTransaction.totalAmount,
         fee: lastTransaction.fee,
-        recommended_ads: relevantAds.map(ad => ([
+        recommended_ads: relevantAds.map(ad => (
             { ad_url: ad.ad_url,target_url: ad.image_url, ad_id: ad.id},
             { ad_url: ad.ad_url,target_url: ad.image_url, ad_id: ad.id } // Ensure your ad objects have target_url
-        ]))
+        ))
     };
     
 }
