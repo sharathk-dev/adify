@@ -1,0 +1,26 @@
+-- Ad clicks seeder
+INSERT INTO ad_clicks (ad_id, member_id, timestamp, is_clicked)
+VALUES 
+(1, 1, DATE_SUB(NOW(), INTERVAL 5 DAY), false),
+(2, 1, DATE_SUB(NOW(), INTERVAL 4 DAY), false),
+(3, 1, DATE_SUB(NOW(), INTERVAL 3 DAY), false),
+(2, 2, DATE_SUB(NOW(), INTERVAL 2 DAY), true),
+(4, 2, DATE_SUB(NOW(), INTERVAL 1 DAY), true),
+(5, 2, DATE_SUB(NOW(), INTERVAL 1 DAY), false),
+(6, 3, DATE_SUB(NOW(), INTERVAL 2 DAY), false),
+(7, 3, DATE_SUB(NOW(), INTERVAL 1 DAY), true),
+(8, 4, DATE_SUB(NOW(), INTERVAL 3 DAY), true),
+(9, 4, DATE_SUB(NOW(), INTERVAL 2 DAY), false),
+(10, 5, DATE_SUB(NOW(), INTERVAL 1 DAY), true),
+(11, 5, DATE_SUB(NOW(), INTERVAL 1 DAY), false),
+(1, 6, DATE_SUB(NOW(), INTERVAL 2 DAY), true),
+(2, 6, DATE_SUB(NOW(), INTERVAL 3 DAY), false),
+(3, 7, DATE_SUB(NOW(), INTERVAL 4 DAY), true),
+(4, 7, DATE_SUB(NOW(), INTERVAL 5 DAY), false),
+(5, 8, DATE_SUB(NOW(), INTERVAL 6 DAY), true),
+(6, 8, DATE_SUB(NOW(), INTERVAL 7 DAY), false),
+(7, 9, DATE_SUB(NOW(), INTERVAL 8 DAY), true),
+(8, 9, DATE_SUB(NOW(), INTERVAL 9 DAY), false),
+(9, 10, DATE_SUB(NOW(), INTERVAL 10 DAY), true),
+(10, 10, DATE_SUB(NOW(), INTERVAL 11 DAY), false),
+(11, 11, DATE_SUB(NOW(), INTERVAL 12 DAY), true);

@@ -12,7 +12,7 @@ export default (sequelize, DataTypes) => {
         lat: {
             type: DataTypes.FLOAT
         },
-        long: {
+        lng: {
             type: DataTypes.FLOAT
         },
         address: {

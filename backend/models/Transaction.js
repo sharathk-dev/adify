@@ -48,6 +48,11 @@ export default (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 0.00
         },
+        serviceFee: {
+            type: DataTypes.DECIMAL(10,2),
+            allowNull: false,
+            defaultValue: 0.00
+        },
         paid: {
             type: DataTypes.DECIMAL(10,2),
             allowNull: false,

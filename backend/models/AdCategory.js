@@ -11,7 +11,7 @@ export default (sequelize, DataTypes) => {
       unique: true
     }
   }, {
-    tableName: 'categories',
+    tableName: 'ad_categories',
     timestamps: true
   });
 
