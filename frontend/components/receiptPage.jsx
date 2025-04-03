@@ -1,8 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Text, Image, Button, Flex } from "@chakra-ui/react";
+import { userDetails,trackAdView } from "../middlewares/api";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const ReceiptPage = () => {
     const [isAdVisible, setIsAdVisible] = useState(true);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const userData = await userDetails();
+                if (userData) {
+                    setUser(userData);
+                }
+            } catch (error) {
+                console.error("Error fetching user details:", error);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    // Define the formatDate function
+    const formatDate = (isoString) => {
+        const date = new Date(isoString);
+        return date.toLocaleString("en-US", {
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+        });
+    };
+
+    // Function to send API request for ad view or click
+    const sendAdEvent = async (ad, isClicked) => {
+        if (!user) return;
+
+        const payload = {
+            transactionId: user?.recommended_ads?.transactionId || "",
+            isClicked,  // 0 for view, 1 for click
+            adId: ad?.ad_id || "",
+            memberId: user?.recommended_ads?.memberId || "",
+        };
+
+        try {
+            await trackAdView(payload);
+            console.log(`Ad ${isClicked ? "click" : "view"} tracked successfully:`, payload);
+        } catch (error) {
+            console.error(`Error tracking ad ${isClicked ? "click" : "view"}:`, error);
+        }
+    };
+
+    // Call API when the ad is first shown
+    useEffect(() => {
+        if (isAdVisible && user?.recommended_ads?.recommended_ads?.length > 0) {
+            user.recommended_ads.recommended_ads.forEach(ad => sendAdEvent(ad, 0));  // Track view event
+        }
+    }, [isAdVisible, user]);
+
+    const ads = user?.recommended_ads?.recommended_ads || [];
+
+    const sliderSettings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: ads.length > 3,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        pauseOnHover: false,
+    };
 
     return (
         <Box
@@ -24,25 +95,16 @@ const ReceiptPage = () => {
                 borderColor="#5A189A"
                 overflow="hidden"
             >
-                {/* Top Section with Background Image */}
+                {/* Top Section */}
                 <Box
-                    bgImage="url('/images/j.png')" // Replace with actual image path
                     bgSize="cover"
                     bgPosition="center"
                     p={10}
                     textAlign="center"
                     position="relative"
-                    _before={{
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        bg: "#7B2CBF", // Dark overlay for readability
-                    }}
+                    bg="#7B2CBF"
                 >
-                    <Text fontSize="3xl" fontWeight="bold" color="white" position="relative" zIndex={1}>
+                    <Text fontSize="3xl" fontWeight="bold" color="white">
                         Thank You!
                     </Text>
                 </Box>
@@ -60,15 +122,15 @@ const ReceiptPage = () => {
                     <Box mt={4} color="gray.700">
                         <Flex justifyContent="space-between">
                             <Text fontWeight="bold">License Plate</Text>
-                            <Text>7136880</Text>
+                            <Text>{user?.recommended_ads?.licensePlate || "N/A"}</Text>
                         </Flex>
                         <Flex justifyContent="space-between">
                             <Text fontWeight="bold">Entered At</Text>
-                            <Text>Mar 26, 09:11 AM</Text>
+                            <Text>{user?.recommended_ads?.entryTime ? formatDate(user.recommended_ads.entryTime) : "N/A"}</Text>
                         </Flex>
                         <Flex justifyContent="space-between">
                             <Text fontWeight="bold">Exited At</Text>
-                            <Text>Mar 26, 10:01 AM</Text>
+                            <Text>{user?.recommended_ads?.exitTime ? formatDate(user.recommended_ads.exitTime) : "N/A"}</Text>
                         </Flex>
                     </Box>
 
@@ -84,68 +146,75 @@ const ReceiptPage = () => {
                         borderColor="#5A189A"
                         boxShadow="inset 0px 4px 6px rgba(0, 0, 0, 0.2)"
                         _hover={{ bg: "gray.100" }}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
                     >
                         Paid with Google Pay
                     </Button>
 
-                    {/* Ad Section */}
-                    {isAdVisible && (
-                        <Box
-                            bg="gray.100"
-                            rounded="md"
-                            textAlign="center"
-                            position="relative"
-                            color="black"
-                            shadow="md"
-                            w="full"
-                            h={32}
-                            overflow="hidden"
-                        >
-                            <Box position="relative" w="full" h="full">
-                                <Image src="/images/buger.jpg" alt="Ad" w="full" h="full" objectFit="cover" />
-                                <Button
-                                    size="s"
-                                    position="absolute"
-                                    top={1}
-                                    right={1}
-                                    color="gray.700"
-                                    bg="gray.200"
-                                    _hover={{ bg: "gray.300" }}
-                                    _active={{ bg: "gray.400" }}
-                                    onClick={() => setIsAdVisible(false)}
-                                >
-                                    ✕
-                                </Button>
-                                <Button
-                                    bg="rgba(0,0,0,0.4)"
-                                    color="white"
-                                    size="xs"
-                                    _hover={{ bg: "#000", color: "white" }}
-                                    position="absolute"
-                                    bottom={2}
-                                    left="50%"
-                                    transform="translateX(-50%)"
-                                    fontWeight="bold"
-                                >
-                                    Redeem
-                                </Button>
-                            </Box>
+                    {/* Scrollable Ad Section */}
+                    {isAdVisible && ads.length > 0 && (
+                        <Box mt={4} w="full">
+                            <Slider {...sliderSettings}>
+                                {ads.map((ad, index) => (
+                                    <Box key={index} position="relative">
+                                        <a
+                                            href={ad.target_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={() => sendAdEvent(ad, 1)}  // Track click event
+                                        >
+                                            <Image
+                                                src={"https://mir-s3-cdn-cf.behance.net/project_modules/2800_opt_1/cca71160275449.5a46380807b12.jpg"}
+                                                alt={`Advertisement ${index + 1}`}
+                                                w="full"
+                                                h={40}
+                                                objectFit="cover"
+                                                cursor="pointer"
+                                            />
+                                        </a>
+                                        <Button
+                                            size="s"
+                                            position="absolute"
+                                            top={1}
+                                            right={1}
+                                            color="gray.700"
+                                            bg="gray.200"
+                                            _hover={{ bg: "gray.300" }}
+                                            _active={{ bg: "gray.400" }}
+                                            onClick={() => {
+                                                setIsAdVisible(false); // Close ad
+                                                sendAdEvent(ad, 1); // Track click event
+                                            }}
+                                        >
+                                            ✕
+                                        </Button>
+                                    </Box>
+                                ))}
+                            </Slider>
                         </Box>
                     )}
 
                     {/* Pricing Details */}
                     <Box borderBottom="2px solid" borderColor="#5A189A" my={5} />
                     <Box color="gray.700">
-                        <Flex justifyContent="space-between"><Text>Parking</Text><Text>$4.00</Text></Flex>
-                        <Flex justifyContent="space-between"><Text>Service Fee</Text><Text>$0.00</Text></Flex>
-                        <Flex justifyContent="space-between"><Text>Discount</Text><Text>-$0.00</Text></Flex>
-                        <Flex justifyContent="space-between" fontWeight="bold" color="#5A189A">
-                            <Text>Total</Text><Text>$4.00</Text>
+                        <Flex justifyContent="space-between">
+                            <Text>Parking</Text>
+                            <Text>${user?.recommended_ads?.totalAmount || "0.00"}</Text>
                         </Flex>
-                        <Text fontSize="xs" color="gray.500" mt={2}>*Includes state and local taxes of $0.00</Text>
+                        <Flex justifyContent="space-between">
+                            <Text>Service Fee</Text>
+                            <Text>${user?.recommended_ads?.fee || "0.00"}</Text>
+                        </Flex>
+                        <Flex justifyContent="space-between">
+                            <Text>Discount</Text>
+                            <Text>-$0.00</Text>
+                        </Flex>
+                        <Flex justifyContent="space-between" fontWeight="bold" color="#5A189A">
+                            <Text>Total</Text>
+                            <Text>${user?.recommended_ads?.paidAmount || "0.00"}</Text>
+                        </Flex>
+                        <Text fontSize="xs" color="gray.500" mt={2}>
+                            *Includes state and local taxes of $0.00
+                        </Text>
                     </Box>
 
                     {/* Close Session Button */}
@@ -158,7 +227,7 @@ const ReceiptPage = () => {
                         fontWeight="bold"
                         _hover={{ bg: "#7B2CBF" }}
                     >
-                        Session Closed
+                        Find your receipt
                     </Button>
                 </Box>
             </Box>

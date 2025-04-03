@@ -6,7 +6,7 @@ function App() {
   return (
       <Router>
         <Routes>
-          <Route path="/" element={<ReceiptPage />} />
+          <Route path="/receipt" element={<ReceiptPage />} />
         </Routes>
       </Router>
   );
