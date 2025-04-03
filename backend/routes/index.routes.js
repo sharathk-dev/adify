@@ -5,7 +5,7 @@ import { getRecommendedAds } from "../controllers/recommendation.controller.js";
 const router = express.Router();
 
 // Route for recording ad clicks
-router.get("/clickLogger", recordClickLogger);
+router.post("/clickLogger", recordClickLogger);
 
 // Route for getting recommended ads for a user
 router.get("/user/:userId", (req, res) => {
