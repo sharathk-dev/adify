@@ -1,12 +1,22 @@
-export const userDetails = async () => {
+export const userDetails = async (user_id, token) => {
+    if (!user_id) {
+        console.error("User ID is required.");
+        return null;
+    }
     try {
-        const response = await fetch("http://localhost:3000/api/recommendations/1", { credentials: "include" });
-        const text = await response.text(); 
+        const response = await fetch(`http://localhost:3000/api/recommendations?memberId=${user_id}&locationId=1`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            credentials: "include"
+        });
+        const text = await response.text();
         console.log("Raw Response:", text);
-        
         try {
             const json = JSON.parse(text);
-            console.log(json)
+            console.log(json);
             return json;
         } catch (error) {
             console.error("Failed to parse JSON.");
@@ -19,14 +29,17 @@ export const userDetails = async () => {
 };
 
 
-export const trackAdView = async (payload) => {
+
+export const trackAdView = async (payload, token) => {
     try {
-        const response = await fetch('http://localhost:3000/api/clickLogger', {
-            method: 'POST', 
+        console.log("track view req : " + JSON.stringify(token));
+        const response = await fetch('http://localhost:3000/api/addEvents', {
+            method: 'POST',
             headers: {
+                "Authorization": `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload), 
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -38,6 +51,60 @@ export const trackAdView = async (payload) => {
         console.error('Error posting trackAdView details:', error);
     }
 };
+
+export const login = async (email, password, token) => {
+    try {
+        const response = await fetch("http://localhost:3000/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Invalid response from server. Please try again.");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Login failed. Please try again.");
+        }
+        console.log(" new user : "+JSON.stringify({ userId: data.data.member.id, token: data.data.sessionToken }))
+        localStorage.setItem("user", JSON.stringify({ userId: data.data.member.id, token: data.data.sessionToken }));
+        return data;
+    } catch (error) {
+        console.error("Login error:", error);
+        throw new Error(error.message || "Login failed. Please try again.");
+    }
+};
+
+export const sendParkingInfo = async (payload, token) => {
+    try {
+        const response = await fetch("", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            navigate("/receipt/:locationId/:txnId");
+        } else {
+            setErrorMessage(data.message || "Submission failed. Please try again.");
+        }
+    }
+    catch (error) {
+        console.error('Error posting parkingInfo:', error);
+    }
+
+}
+
+
 
 
 
