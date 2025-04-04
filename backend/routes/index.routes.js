@@ -3,7 +3,7 @@ import { recordClickLogger } from "../controllers/adclicks.controller.js";
 import { getRecommendedAds } from "../controllers/recommendation.controller.js";
 import { getMatchedAds } from "../controllers/matchingEngine.controller.js";
 import { login } from "../controllers/auth.controllers.js";
-import { verifyToken } from "../controllers/auth.controllers.js";
+import { verifyToken } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 

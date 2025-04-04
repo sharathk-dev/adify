@@ -5,7 +5,7 @@ import AdClick from '../models/AdClick.js';
 
 async function recordClickLogger(req, res) {
     try {
-        const { adId, memberId,transactionId, isClicked} = req.body; // Get data from request body
+        const { adId, memberId,transactionId, isClicked} = req.body;
         if (!adId || !memberId) {
             return res.status(400).json({ error: "adId and memberId are required" });
         }
