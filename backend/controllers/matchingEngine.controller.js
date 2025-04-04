@@ -10,6 +10,8 @@ import Location from '../models/Location.js';
  */
 async function extractRecommendationContext(params) {
     const { memberId, transactionId, locationId } = params;
+    console.log("iam hereeeee")
+    console.log(transactionId)
     
     const context = {
         memberId: null,
@@ -19,11 +21,17 @@ async function extractRecommendationContext(params) {
         vehicleDetails: null,
         error: null
     };
+    console.log("iam heree12121212eee")
+    
     
     try {
         // APPROACH 1: Transaction-based (highest priority)
+        console.log("iam heree12121212eee")
+        console.log(transactionId)
         if (transactionId) {
             const transaction = await Transaction.findByPk(transactionId);
+            println("transactionnnnIddd")
+            println(transaction)
             if (!transaction) {
                 context.error = { status: 404, message: 'Transaction not found' };
                 return context;
@@ -44,7 +52,8 @@ async function extractRecommendationContext(params) {
                     console.warn('Failed to parse vehicle details', e);
                 }
             }
-            
+            console.log("curlll context")
+            console.log(context)
             return context;
         }
         
@@ -110,6 +119,18 @@ async function extractRecommendationContext(params) {
             message: 'Either memberId or transactionId is required' 
         };
         
+// I want to add these fields as well
+        // paidAmount
+
+// fee
+// totalAmount
+// locationName
+// entryTime
+
+// exitTime
+
+// discount
+ 
         return context;
     } catch (error) {
         console.error('Error extracting recommendation context:', error);
@@ -121,6 +142,28 @@ async function extractRecommendationContext(params) {
         return context;
     }
 }
+
+async function getLastTransactionLocation(memberId){
+    // Find most recent transaction to get location
+    const lastTransaction = await Transaction.findOne({
+       where: { memberId },
+       order: [['createdAt', 'DESC']]
+   });
+   console.log(lastTransaction)
+   if (lastTransaction) {
+       let transactionDetils = {
+           "paidAmount" : lastTransaction.paid,
+           "fee":lastTransaction.serviceFee,
+           "totalAmount":lastTransaction.total,
+           "entryTime":lastTransaction.entryTime,
+           "exitTime":lastTransaction.exitTime,
+           "discount":lastTransaction.discount,
+           "transactionId":lastTransaction.id
+   
+       }
+       return transactionDetils
+   }
+   }
 
 /**
  * @swagger
@@ -314,7 +357,7 @@ async function extractRecommendationContext(params) {
  */
 async function getRecommendations(req, res) {
     try {
-        const { memberId, transactionId, locationId, limit = 10 } = req.query;
+        const { memberId, transactionId, locationId, limit = 5 } = req.query;
         
         // Extract complete context from minimal parameters
         const context = await extractRecommendationContext({ 
@@ -429,6 +472,8 @@ async function getRecommendations(req, res) {
             .sort((a, b) => b.relevanceScore - a.relevanceScore)
             .slice(0, parseInt(limit));
         
+        const lastTransaction = await getLastTransactionLocation(memberId)
+        const location = await Location.findByPk(locationId);
         // Prepare and return response
         const response = {
             memberId: context.memberId,
@@ -441,6 +486,14 @@ async function getRecommendations(req, res) {
                 isWeekend
             },
             recommendations,
+            paidAmount:lastTransaction.paidAmount,
+            fee:lastTransaction.fee,
+            totalAmount:lastTransaction.totalAmount,
+            entryTime:lastTransaction.entryTime,
+            exitTime:lastTransaction.exitTime,
+            discount:lastTransaction.paidAdiscountmount,
+            transactionId:lastTransaction.transactionId,
+            locationName:location.name,
             count: recommendations.length
         };
         
@@ -453,6 +506,7 @@ async function getRecommendations(req, res) {
                 response.vehicleInfo = context.vehicleDetails;
             }
         }
+               
         
         res.json(response);
         
@@ -461,6 +515,7 @@ async function getRecommendations(req, res) {
         res.status(500).json({ message: 'Error getting recommendations', error: error.message });
     }
 }
+
 
 /**
  * Get time of day category based on hour
