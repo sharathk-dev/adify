@@ -1,13 +1,9 @@
 -- AdCategories seeder
-INSERT INTO adCategories (category)
+INSERT INTO adCategories (id, category)
 VALUES 
-('Food & Beverages'),
-('Fashion & Apparel'),
-('Health & Beauty'),
-('Home & Garden'),
-('Sports & Outdoors'),
-('Toys & Hobbies'),
-('Automotive'),
-('Electronics'),
-('Entertainment'),
-('Services');
+(1, 'Food & Beverages'),
+(2, 'Fashion & Apparel'),
+(3, 'Health & Beauty'),
+(4, 'Automotive'),
+(5, 'Entertainment'),
+(6, 'Services');

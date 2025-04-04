@@ -1,19 +1,14 @@
 -- Advertisers seeder
-INSERT INTO advertisers (advertiserName, createdAt, updatedAt)
+INSERT INTO advertisers (id, advertiserName, createdAt, updatedAt)
 VALUES 
-('McDonalds', NOW(), NOW()),
-('Nike Store', NOW(), NOW()),
-('PVR Cinemas', NOW(), NOW()),
-('Croma', NOW(), NOW()),
-('Amazon', NOW(), NOW()),
-('KFC', NOW(), NOW()),
-('Loreal', NOW(), NOW()),
-('Burger King', NOW(), NOW()),
-('Adidas', NOW(), NOW()),
-('Best Buy', NOW(), NOW()),
-('Sephora', NOW(), NOW()),
-('Under Armour', NOW(), NOW()),
-('Apple', NOW(), NOW()),
-('Samsung', NOW(), NOW()),
-('Sony', NOW(), NOW()),
-('LG', NOW(), NOW());
+(1, 'KFC', NOW(), NOW()),
+(2, 'Swiggy', NOW(), NOW()),
+(3, 'Wrogn', NOW(), NOW()),
+(4, 'Puma', NOW(), NOW()),
+(5, 'Herbalife', NOW(), NOW()),
+(6, 'Pilgrim', NOW(), NOW()),
+(7, 'Go Bumpr', NOW(), NOW()),
+(8, 'Yokohama', NOW(), NOW()),
+(9, 'Bookmyshow', NOW(), NOW()),
+(10, 'Sunburn', NOW(), NOW()),
+(11, '3M Carcare', NOW(), NOW());
