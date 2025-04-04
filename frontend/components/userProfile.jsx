@@ -45,7 +45,7 @@ const ParkingInfo = () => {
         try {
             let token = JSON.parse(localStorage.getItem("user"))?.token || "";
             await sendParkingInfo(payload, token);
-            navigate("/receipt");
+            navigate("/receipt/:locationId/:txnId");
         } catch (error) {
             setErrorMessage("An error occurred. Please try again.");
         } finally {
@@ -57,8 +57,9 @@ const ParkingInfo = () => {
         <Flex minH="100vh" align="center" justify="center" bg="#F9FAFB" px={4}>
             <Box maxW="md" w="full" p={8} bg="white" rounded="lg" boxShadow="xl" border="1px solid #E2E8F0">
                 {/* Header Image */}
-                <Image src="/images/logo.jpg" alt="Metropolis Logo" h="70px" maxW="80%" objectFit="contain" mx="auto" />
-
+                <Flex justify="center" mb={4}>
+                    <Image src="/images/success.png" alt="Metropolis Logo" h="70px" maxW="80%" objectFit="contain" />
+                </Flex>
                 <Text fontSize="xl" fontWeight="bold" mt={6} mb={4} color="gray.700" textAlign="center">
                     Welcome to xxx Garage!
                 </Text>

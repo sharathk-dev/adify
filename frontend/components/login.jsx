@@ -36,10 +36,10 @@ const Login = () => {
                 console.log("No user data found in localStorage.");
             }
             const data = await login(email, password, token);
-            navigate("/checkin");
+            navigate("/receipt/:locationId/:txnId");
         } catch (error) {
             setErrorMessage(error.message);
-        } finally {
+        } finally {z
             setIsLoading(false);
         }
     };

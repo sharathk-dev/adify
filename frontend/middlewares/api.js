@@ -4,7 +4,7 @@ export const userDetails = async (user_id, token) => {
         return null;
     }
     try {
-        const response = await fetch(`http://localhost:3000/api/user/${user_id}`, {
+        const response = await fetch(`http://localhost:3000/api/recommendations?memberId=${user_id}&locationId=1`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -93,7 +93,7 @@ export const sendParkingInfo = async (payload, token) => {
         const data = await response.json();
 
         if (response.ok) {
-            navigate("/receipt");
+            navigate("/receipt/:locationId/:txnId");
         } else {
             setErrorMessage(data.message || "Submission failed. Please try again.");
         }
