@@ -26,10 +26,11 @@ const options = {
     ],
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+        Authorization: {
+          type: 'apiKey',
+          in: 'header',
+          name: 'Authorization',
+          description: 'Enter your JWT token directly (without Bearer prefix)\n\nYou can obtain a token by calling the /login endpoint.'
         },
       },
       schemas: {
@@ -225,6 +226,12 @@ const options = {
         },
       },
     },
+    // Define global security requirement - this makes the lock icon appear on protected endpoints
+    security: [
+      {
+        Authorization: []
+      }
+    ]
   },
   apis: ['./routes/*.js', './controllers/*.js'], // Path to the API docs
 };
@@ -237,6 +244,9 @@ export default {
   setup: swaggerUi.setup(specs, {
     explorer: true,
     customCss: '.swagger-ui .topbar { display: none }',
+    swaggerOptions: {
+      persistAuthorization: true,  // This makes authorization persist between page refreshes
+    }
   }),
   specs,
 }; 

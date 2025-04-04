@@ -22,10 +22,11 @@
   ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+      "Authorization": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Enter your JWT token directly (without Bearer prefix)\n\nYou can obtain a token by calling the /login endpoint."
       }
     },
     "schemas": {
@@ -231,6 +232,11 @@
       }
     }
   },
+  "security": [
+    {
+      "Authorization": []
+    }
+  ],
   "paths": {
     "/addEvents": {
       "post": {
@@ -240,6 +246,7 @@
         ],
         "security": [
           {
+            "Authorization": [],
             "bearerAuth": []
           }
         ],
@@ -254,6 +261,9 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Ad click recorded successfully"
+          },
           "201": {
             "description": "Ad click recorded successfully",
             "content": {
@@ -286,6 +296,9 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
           "500": {
             "description": "Internal server error",
             "content": {
@@ -305,6 +318,144 @@
         }
       }
     },
+    "/user/{userId}": {
+      "get": {
+        "summary": "Get basic ad recommendations for a user (legacy)",
+        "tags": [
+          "Recommendations"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recommended ads with transaction details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recommended_ads": {
+                      "type": "object",
+                      "items": {
+                        "$ref": "#/components/schemas/Ad"
+                      },
+                      "properties": {
+                        "licensePlate": {
+                          "type": "string",
+                          "example": "XYZ-1234"
+                        },
+                        "entryTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-04-01T12:00:00Z"
+                        },
+                        "exitTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-04-01T14:00:00Z"
+                        },
+                        "memberId": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "transactionId": {
+                          "type": "string",
+                          "example": "abcd-1234"
+                        },
+                        "paidAmount": {
+                          "type": "string",
+                          "example": "2.00"
+                        },
+                        "totalAmount": {
+                          "type": "string",
+                          "example": "10.00"
+                        },
+                        "fee": {
+                          "type": "string",
+                          "example": "4.00"
+                        },
+                        "recommended_ads": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "ad_url": {
+                                "type": "string",
+                                "example": "https://example.com/ad1"
+                              },
+                              "target_url": {
+                                "type": "string",
+                                "example": "https://example.com/ad1.jpg"
+                              },
+                              "ad_id": {
+                                "type": "integer",
+                                "example": 10
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Authenticate a member",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Error logging in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/signin": {
       "post": {
         "summary": "Register a new member",
@@ -316,6 +467,7 @@
           "content": {
             "application/json": {
               "schema": {
+                "$ref": "#/components/schemas/Member",
                 "type": "object",
                 "required": [
                   "name",
@@ -375,6 +527,12 @@
               }
             }
           },
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
           "500": {
             "description": "Error creating member",
             "content": {
@@ -388,66 +546,34 @@
         }
       }
     },
-    "/login": {
-      "post": {
-        "summary": "Authenticate a member",
-        "tags": [
-          "Authentication"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Logged in successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Error logging in",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/recommendations/member/{memberId}": {
+    "/recommendations": {
       "get": {
-        "summary": "Get personalized ad recommendations for a member",
+        "summary": "Get personalized ad recommendations based on member or transaction context",
+        "description": "Intelligent recommendation endpoint that requires minimal input parameters.\nCan derive complete context from either memberId or transactionId.\n- With transactionId: Uses transaction data for complete context\n- With memberId: Finds most recent transaction for additional context\n- With memberId + locationId: Uses specified location with member profile\n",
         "tags": [
           "Recommendations"
         ],
         "security": [
           {
-            "bearerAuth": []
+            "Authorization": []
           }
         ],
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "memberId",
-            "required": true,
             "schema": {
               "type": "integer"
             },
-            "description": "ID of the member"
+            "description": "ID of the member (required if transactionId not provided)"
+          },
+          {
+            "in": "query",
+            "name": "transactionId",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the transaction (optional - takes precedence if provided)"
           },
           {
             "in": "query",
@@ -455,7 +581,7 @@
             "schema": {
               "type": "integer"
             },
-            "description": "ID of the location (optional if member has transactions)"
+            "description": "ID of the location (optional - will be derived from transaction if not provided)"
           },
           {
             "in": "query",
@@ -469,17 +595,161 @@
         ],
         "responses": {
           "200": {
-            "description": "List of recommended ads",
+            "description": "List of recommended ads with context information",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "data": {
+                    "memberId": {
+                      "type": "integer",
+                      "example": 1,
+                      "description": "ID of the member for whom recommendations were generated"
+                    },
+                    "locationId": {
+                      "type": "integer",
+                      "example": 2,
+                      "description": "ID of the location context used for recommendations"
+                    },
+                    "transactionId": {
+                      "type": "integer",
+                      "example": 123,
+                      "description": "ID of the transaction (included when recommendation is based on transaction)"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-18T15:30:45.123Z",
+                      "description": "Timestamp when recommendations were generated"
+                    },
+                    "currentVehicle": {
+                      "type": "string",
+                      "example": "ABC123",
+                      "description": "License plate of the vehicle from current transaction"
+                    },
+                    "vehicleInfo": {
+                      "type": "object",
+                      "properties": {
+                        "make": {
+                          "type": "string",
+                          "example": "Tesla"
+                        },
+                        "model": {
+                          "type": "string",
+                          "example": "Model 3"
+                        },
+                        "fuelType": {
+                          "type": "string",
+                          "example": "Electric"
+                        }
+                      },
+                      "description": "Vehicle details when available from transaction"
+                    },
+                    "timeContext": {
+                      "type": "object",
+                      "properties": {
+                        "timeOfDay": {
+                          "type": "string",
+                          "enum": [
+                            "morning",
+                            "afternoon",
+                            "evening",
+                            "night"
+                          ],
+                          "example": "afternoon"
+                        },
+                        "hour": {
+                          "type": "integer",
+                          "example": 14
+                        },
+                        "dayOfWeek": {
+                          "type": "integer",
+                          "example": 3,
+                          "description": "0-6 (Sunday-Saturday)"
+                        },
+                        "isWeekend": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      },
+                      "description": "Time context used for recommendations"
+                    },
+                    "recommendations": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Ad"
-                      }
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 5
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "20% Off Premium Car Wash"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Limited time discount on our premium car wash service"
+                          },
+                          "advertiser_id": {
+                            "type": "integer",
+                            "example": 2
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "example": "https://example.com/images/carwash.jpg"
+                          },
+                          "categoryId": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "locationIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            },
+                            "example": [
+                              1,
+                              2,
+                              3
+                            ]
+                          },
+                          "relevanceScore": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0.87,
+                            "description": "Overall relevance score (0-1)"
+                          },
+                          "scoreDetails": {
+                            "type": "object",
+                            "properties": {
+                              "locationScore": {
+                                "type": "number",
+                                "example": 1
+                              },
+                              "timeScore": {
+                                "type": "number",
+                                "example": 0.8
+                              },
+                              "vehicleScore": {
+                                "type": "number",
+                                "example": 0.9
+                              },
+                              "dayScore": {
+                                "type": "number",
+                                "example": 0.7
+                              }
+                            },
+                            "description": "Detailed breakdown of scoring factors"
+                          }
+                        }
+                      },
+                      "description": "Array of recommended ads sorted by relevance"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "example": 5,
+                      "description": "Number of recommendations returned"
                     }
                   }
                 }
@@ -487,7 +757,7 @@
             }
           },
           "400": {
-            "description": "Bad request - Location ID required",
+            "description": "Bad request - Missing required parameters",
             "content": {
               "application/json": {
                 "schema": {
@@ -495,7 +765,11 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Location ID is required"
+                      "example": "Either memberId or transactionId is required"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Additional error details if available"
                     }
                   }
                 }
@@ -503,7 +777,7 @@
             }
           },
           "404": {
-            "description": "Member not found",
+            "description": "Resource not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -512,6 +786,10 @@
                     "message": {
                       "type": "string",
                       "example": "Member not found"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Additional error details if available"
                     }
                   }
                 }
@@ -523,97 +801,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/{userId}": {
-      "get": {
-        "summary": "Get basic ad recommendations for a user (legacy)",
-        "tags": [
-          "Recommendations"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            },
-            "description": "ID of the user"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of recommended ads with transaction details",
-            "content": {
-              "application/json": {
-                "schema": {
                   "type": "object",
                   "properties": {
-                    "recommended_ads": {
-                      "type": "object",
-                      "properties": {
-                        "licensePlate": {
-                          "type": "string",
-                          "example": "XYZ-1234"
-                        },
-                        "entryTime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "example": "2024-04-01T12:00:00Z"
-                        },
-                        "exitTime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "example": "2024-04-01T14:00:00Z"
-                        },
-                        "memberId": {
-                          "type": "integer",
-                          "example": 1
-                        },
-                        "transactionId": {
-                          "type": "string",
-                          "example": "abcd-1234"
-                        },
-                        "paidAmount": {
-                          "type": "string",
-                          "example": "2.00"
-                        },
-                        "totalAmount": {
-                          "type": "string",
-                          "example": "10.00"
-                        },
-                        "fee": {
-                          "type": "string",
-                          "example": "4.00"
-                        },
-                        "recommended_ads": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "ad_url": {
-                                "type": "string",
-                                "example": "https://example.com/ad1"
-                              },
-                              "target_url": {
-                                "type": "string",
-                                "example": "https://example.com/ad1.jpg"
-                              },
-                              "ad_id": {
-                                "type": "integer",
-                                "example": 10
-                              }
-                            }
-                          }
-                        }
-                      }
+                    "message": {
+                      "type": "string",
+                      "example": "Error getting recommendations"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Detailed error message"
                     }
                   }
                 }
