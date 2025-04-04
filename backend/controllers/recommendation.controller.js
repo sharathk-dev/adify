@@ -1,6 +1,3 @@
-
-
-
 import _ from "lodash";
 
 // Sample data (mock database)
@@ -47,7 +44,71 @@ function getUserClickedCategories(userId) {
     }).filter(category => category !== null);
 }
 
-// Main function to get recommended ads
+/**
+ * @swagger
+ * /user/{userId}:
+ *   get:
+ *     summary: Get basic ad recommendations for a user (legacy)
+ *     tags: [Recommendations]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the user
+ *     responses:
+ *       200:
+ *         description: List of recommended ads with transaction details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 recommended_ads:
+ *                   type: object
+ *                   properties:
+ *                     licensePlate:
+ *                       type: string
+ *                       example: "XYZ-1234"
+ *                     entryTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-04-01T12:00:00Z"
+ *                     exitTime:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-04-01T14:00:00Z"
+ *                     memberId:
+ *                       type: integer
+ *                       example: 1
+ *                     transactionId:
+ *                       type: string
+ *                       example: "abcd-1234"
+ *                     paidAmount:
+ *                       type: string
+ *                       example: "2.00"
+ *                     totalAmount:
+ *                       type: string
+ *                       example: "10.00"
+ *                     fee:
+ *                       type: string
+ *                       example: "4.00"
+ *                     recommended_ads:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           ad_url:
+ *                             type: string
+ *                             example: "https://example.com/ad1"
+ *                           target_url:
+ *                             type: string
+ *                             example: "https://example.com/ad1.jpg"
+ *                           ad_id:
+ *                             type: integer
+ *                             example: 10
+ */
 export function getRecommendedAds(userId) {
 
     const userLocation = getLastTransactionLocation(userId);
@@ -83,7 +144,6 @@ export function getRecommendedAds(userId) {
             { ad_url: ad.ad_url,target_url: ad.image_url, ad_id: ad.id } // Ensure your ad objects have target_url
         ))
     };
-    
 }
 
 

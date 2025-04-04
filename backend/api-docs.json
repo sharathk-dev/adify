@@ -1,0 +1,852 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Adify API",
+    "version": "1.0.0",
+    "description": "API documentation for Adify - Contextual ad and service engine for parking sessions",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "contact": {
+      "name": "Adify Support",
+      "url": "https://adify.example.com",
+      "email": "support@adify.example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001/api",
+      "description": "Development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Authorization": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Enter your JWT token directly (without Bearer prefix)\n\nYou can obtain a token by calling the /login endpoint."
+      }
+    },
+    "schemas": {
+      "Member": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The member ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "The member name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The member email",
+            "example": "john.doe@example.com"
+          },
+          "contact": {
+            "type": "string",
+            "description": "The member contact number",
+            "example": "+10000000000"
+          },
+          "vehicles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Vehicle registration numbers",
+            "example": [
+              "ABC123",
+              "XYZ789"
+            ]
+          },
+          "cardDetails": {
+            "type": "object",
+            "properties": {
+              "cardNumber": {
+                "type": "string",
+                "description": "Last 4 digits of card number",
+                "example": "4958"
+              },
+              "expiryDate": {
+                "type": "string",
+                "description": "Card expiry date",
+                "example": "02/2024"
+              },
+              "cvv": {
+                "type": "string",
+                "description": "Card CVV number",
+                "example": "535"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Ad": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The ad ID",
+            "example": 1
+          },
+          "advertiserId": {
+            "type": "integer",
+            "description": "The advertiser ID",
+            "example": 1
+          },
+          "adUrl": {
+            "type": "string",
+            "description": "The ad URL",
+            "example": "https://example.com/ad1"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "The ad image URL",
+            "example": "https://example.com/image1.jpg"
+          },
+          "locationIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Location IDs where ad is displayed",
+            "example": [
+              1,
+              2,
+              3
+            ]
+          },
+          "costToClick": {
+            "type": "number",
+            "format": "float",
+            "description": "Cost per click",
+            "example": 0.5
+          },
+          "categoryId": {
+            "type": "integer",
+            "description": "Category ID of the ad",
+            "example": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email",
+            "example": "mike.cooper@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "adify123"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Logged in successfully"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "sessionToken": {
+                "type": "string",
+                "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              },
+              "member": {
+                "$ref": "#/components/schemas/Member"
+              }
+            }
+          }
+        }
+      },
+      "AdClick": {
+        "type": "object",
+        "properties": {
+          "adId": {
+            "type": "integer",
+            "description": "The ad ID",
+            "example": 1
+          },
+          "memberId": {
+            "type": "integer",
+            "description": "The member ID",
+            "example": 5
+          },
+          "transactionId": {
+            "type": "integer",
+            "description": "The transaction ID",
+            "example": 123
+          },
+          "isClicked": {
+            "type": "boolean",
+            "description": "Whether the ad was clicked",
+            "example": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          },
+          "error": {
+            "type": "string",
+            "example": "Error details"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "Authorization": []
+    }
+  ],
+  "paths": {
+    "/addEvents": {
+      "post": {
+        "summary": "Record an ad click event",
+        "tags": [
+          "Ad Management"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdClick"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ad click recorded successfully"
+          },
+          "201": {
+            "description": "Ad click recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Ad click recorded"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "adId and memberId are required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - attempting to record clicks for another member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Forbidden: You can only record clicks for yourself"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "get": {
+        "summary": "Get basic ad recommendations for a user (legacy)",
+        "tags": [
+          "Recommendations"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recommended ads with transaction details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "recommended_ads": {
+                      "type": "object",
+                      "items": {
+                        "$ref": "#/components/schemas/Ad"
+                      },
+                      "properties": {
+                        "licensePlate": {
+                          "type": "string",
+                          "example": "XYZ-1234"
+                        },
+                        "entryTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-04-01T12:00:00Z"
+                        },
+                        "exitTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-04-01T14:00:00Z"
+                        },
+                        "memberId": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "transactionId": {
+                          "type": "string",
+                          "example": "abcd-1234"
+                        },
+                        "paidAmount": {
+                          "type": "string",
+                          "example": "2.00"
+                        },
+                        "totalAmount": {
+                          "type": "string",
+                          "example": "10.00"
+                        },
+                        "fee": {
+                          "type": "string",
+                          "example": "4.00"
+                        },
+                        "recommended_ads": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "ad_url": {
+                                "type": "string",
+                                "example": "https://example.com/ad1"
+                              },
+                              "target_url": {
+                                "type": "string",
+                                "example": "https://example.com/ad1.jpg"
+                              },
+                              "ad_id": {
+                                "type": "integer",
+                                "example": 10
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Authenticate a member",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Error logging in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signin": {
+      "post": {
+        "summary": "Register a new member",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Member",
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "contact",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "New Member"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "new@example.com"
+                  },
+                  "contact": {
+                    "type": "string",
+                    "example": "+10000000000"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "adify123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Member created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Member created successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sessionToken": {
+                          "type": "string",
+                          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        },
+                        "newMember": {
+                          "$ref": "#/components/schemas/Member"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "500": {
+            "description": "Error creating member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recommendations": {
+      "get": {
+        "summary": "Get personalized ad recommendations based on member or transaction context",
+        "description": "Intelligent recommendation endpoint that requires minimal input parameters.\nCan derive complete context from either memberId or transactionId.\n- With transactionId: Uses transaction data for complete context\n- With memberId: Finds most recent transaction for additional context\n- With memberId + locationId: Uses specified location with member profile\n",
+        "tags": [
+          "Recommendations"
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "memberId",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the member (required if transactionId not provided)"
+          },
+          {
+            "in": "query",
+            "name": "transactionId",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the transaction (optional - takes precedence if provided)"
+          },
+          {
+            "in": "query",
+            "name": "locationId",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the location (optional - will be derived from transaction if not provided)"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Maximum number of ads to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of recommended ads with context information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "memberId": {
+                      "type": "integer",
+                      "example": 1,
+                      "description": "ID of the member for whom recommendations were generated"
+                    },
+                    "locationId": {
+                      "type": "integer",
+                      "example": 2,
+                      "description": "ID of the location context used for recommendations"
+                    },
+                    "transactionId": {
+                      "type": "integer",
+                      "example": 123,
+                      "description": "ID of the transaction (included when recommendation is based on transaction)"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2023-07-18T15:30:45.123Z",
+                      "description": "Timestamp when recommendations were generated"
+                    },
+                    "currentVehicle": {
+                      "type": "string",
+                      "example": "ABC123",
+                      "description": "License plate of the vehicle from current transaction"
+                    },
+                    "vehicleInfo": {
+                      "type": "object",
+                      "properties": {
+                        "make": {
+                          "type": "string",
+                          "example": "Tesla"
+                        },
+                        "model": {
+                          "type": "string",
+                          "example": "Model 3"
+                        },
+                        "fuelType": {
+                          "type": "string",
+                          "example": "Electric"
+                        }
+                      },
+                      "description": "Vehicle details when available from transaction"
+                    },
+                    "timeContext": {
+                      "type": "object",
+                      "properties": {
+                        "timeOfDay": {
+                          "type": "string",
+                          "enum": [
+                            "morning",
+                            "afternoon",
+                            "evening",
+                            "night"
+                          ],
+                          "example": "afternoon"
+                        },
+                        "hour": {
+                          "type": "integer",
+                          "example": 14
+                        },
+                        "dayOfWeek": {
+                          "type": "integer",
+                          "example": 3,
+                          "description": "0-6 (Sunday-Saturday)"
+                        },
+                        "isWeekend": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      },
+                      "description": "Time context used for recommendations"
+                    },
+                    "recommendations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 5
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "20% Off Premium Car Wash"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Limited time discount on our premium car wash service"
+                          },
+                          "advertiser_id": {
+                            "type": "integer",
+                            "example": 2
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "example": "https://example.com/images/carwash.jpg"
+                          },
+                          "categoryId": {
+                            "type": "integer",
+                            "example": 4
+                          },
+                          "locationIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            },
+                            "example": [
+                              1,
+                              2,
+                              3
+                            ]
+                          },
+                          "relevanceScore": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 0.87,
+                            "description": "Overall relevance score (0-1)"
+                          },
+                          "scoreDetails": {
+                            "type": "object",
+                            "properties": {
+                              "locationScore": {
+                                "type": "number",
+                                "example": 1
+                              },
+                              "timeScore": {
+                                "type": "number",
+                                "example": 0.8
+                              },
+                              "vehicleScore": {
+                                "type": "number",
+                                "example": 0.9
+                              },
+                              "dayScore": {
+                                "type": "number",
+                                "example": 0.7
+                              }
+                            },
+                            "description": "Detailed breakdown of scoring factors"
+                          }
+                        }
+                      },
+                      "description": "Array of recommended ads sorted by relevance"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "example": 5,
+                      "description": "Number of recommendations returned"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Either memberId or transactionId is required"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Additional error details if available"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Member not found"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Additional error details if available"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Error getting recommendations"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication endpoints"
+    },
+    {
+      "name": "Ad Management",
+      "description": "Ad click tracking endpoints"
+    },
+    {
+      "name": "Recommendations",
+      "description": "Ad recommendation endpoints"
+    }
+  ]
+}

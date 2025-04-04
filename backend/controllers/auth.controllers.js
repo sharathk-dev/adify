@@ -9,6 +9,63 @@ const createJWT = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
 
+/**
+ * @swagger
+ * /signin:
+ *   post:
+ *     summary: Register a new member
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - contact
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "New Member"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "new@example.com"
+ *               contact:
+ *                 type: string
+ *                 example: "+10000000000"
+ *               password:
+ *                 type: string
+ *                 example: "adify123"
+ *     responses:
+ *       200:
+ *         description: Member created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Member created successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sessionToken:
+ *                       type: string
+ *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                     newMember:
+ *                       $ref: '#/components/schemas/Member'
+ *       500:
+ *         description: Error creating member
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 export const signin = async (req, res) => {
     try {
         const { name, email, contact, password } = req.body;
@@ -41,13 +98,37 @@ export const signin = async (req, res) => {
     }
 }
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Authenticate a member
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
+ *     responses:
+ *       200:
+ *         description: Logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LoginResponse'
+ *       500:
+ *         description: Error logging in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
         const member = await Member.findOne({ where: { email } });
-        console.log("memberrrr")
-        console.log(member)
         
         if (!member) {
             throw new Error('Member not found');
@@ -72,23 +153,3 @@ export const login = async (req, res) => {
         res.status(500).json({ message: 'Error loggin in, ', error: error.message });
     }
 }
-
-
-
-export const verifyToken = (req, res, next) => {
-    
-    let authHeader = req.headers['authorization'];
-    let receivedToken = req.headers.authorization?.split(" ")[1];  
-    let token = receivedToken.replace(/['"]+/g, '').trim();
-
-    if (!token) {
-        return res.status(401).json({ message: "Unauthorized, token missing" });
-    }
-    try {
-        const decoded = jwt.verify(token,process.env.JWT_SECRET);
-        req.user = decoded;  // Attach user ID to request
-        next();  // Proceed to next middleware
-    } catch (error) {
-        return res.status(403).json({ message: "Invalid or expired token" });
-    }
-};
