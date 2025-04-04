@@ -33,9 +33,9 @@ const AdClick = sequelize.define(
     },
   },
   {
-    tableName: 'ad_clicks',
     timestamps: true,
-    underscored: true
+    underscored: false,
+    tableName: 'adClicks'
   }
 );
 
@@ -57,10 +57,10 @@ AdClick.getAdClick = async (transactionId) => {
 
 
 
-AdClick.insertAdClick = async (adId, memberId) => {
+AdClick.insertAdClick = async (adId, memberId, isClicked = 0) => {
   try {
     if (!adId || !memberId) throw new Error('adId and memberId are required');
-    return await AdClick.create({ adId, memberId, isClicked: 0 });
+    return await AdClick.create({ adId, memberId, isClicked });
   } catch (error) {
     console.error('Error inserting ad click:', error);
     throw error;
@@ -70,10 +70,12 @@ AdClick.insertAdClick = async (adId, memberId) => {
 
 AdClick.updateAdClick = async (transactionId) => {
   try {
-    return await sequelize.query(
-      `UPDATE ad_clicks SET is_clicked = is_clicked + 1 WHERE id = :transactionId`,
-      { replacements: { transactionId }, type: sequelize.QueryTypes.UPDATE }
-    );
+    const adClick = await AdClick.findByPk(transactionId);
+    if (adClick) {
+      adClick.isClicked = adClick.isClicked + 1;
+      return await adClick.save();
+    }
+    return null;
   } catch (error) {
     console.error('Error updating ad click:', error);
     throw error;
