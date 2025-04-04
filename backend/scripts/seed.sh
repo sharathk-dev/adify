@@ -33,10 +33,10 @@ echo "Dropping all tables..."
 docker exec -i -e MYSQL_PWD="$DB_PASS" adify-mysql mysql -u"$DB_USER" "$DB_NAME" << EOF
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS transactions;
-DROP TABLE IF EXISTS ad_clicks;
+DROP TABLE IF EXISTS adClicks;
 DROP TABLE IF EXISTS ads;
 DROP TABLE IF EXISTS advertisers;
-DROP TABLE IF EXISTS ad_categories;
+DROP TABLE IF EXISTS adCategories;
 DROP TABLE IF EXISTS members;
 DROP TABLE IF EXISTS locations;
 SET FOREIGN_KEY_CHECKS = 1;
