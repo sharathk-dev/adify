@@ -65,6 +65,10 @@ async function recordClickLogger(req, res) {
             return res.status(400).json({ error: "adId and memberId are required" });
         }
         
+        if (!transactionId) {
+            return res.status(400).json({ error: "transactionId is required" });
+        }
+        
         // Authorization check: Ensure a member can only record clicks for themselves
         const authenticatedMemberId = req.member.id;
         if (memberId != authenticatedMemberId) {
@@ -77,7 +81,8 @@ async function recordClickLogger(req, res) {
         // Process the ad click
         let getRecord = await AdClick.getAdClick(transactionId);
         if (!getRecord) {
-            await AdClick.insertAdClick(adId, memberId, isClicked);
+            console.log("inserting ad click");
+            await AdClick.insertAdClick(adId, memberId, transactionId, isClicked);
         } else {
             await AdClick.updateAdClick(transactionId);
         }
@@ -85,7 +90,7 @@ async function recordClickLogger(req, res) {
         return res.status(201).json({ message: "Ad click recorded" });
     } catch (error) {
         console.error("Error recording ad click:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: "Internal Server Error", message: error.message });
     }
 }
 

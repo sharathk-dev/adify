@@ -23,6 +23,10 @@ const AdClick = sequelize.define(
       allowNull: false,
       references: { model: 'members', key: 'id' },
     },
+    transactionId: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+    },
     timestamp: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -57,10 +61,10 @@ AdClick.getAdClick = async (transactionId) => {
 
 
 
-AdClick.insertAdClick = async (adId, memberId, isClicked = 0) => {
+AdClick.insertAdClick = async (adId, memberId, transactionId,isClicked = 0) => {
   try {
     if (!adId || !memberId) throw new Error('adId and memberId are required');
-    return await AdClick.create({ adId, memberId, isClicked });
+    return await AdClick.create({ adId, memberId, transactionId, isClicked });
   } catch (error) {
     console.error('Error inserting ad click:', error);
     throw error;

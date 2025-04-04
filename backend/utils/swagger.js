@@ -210,6 +210,7 @@ const options = {
               example: true,
             },
           },
+          required: ['adId', 'memberId', 'transactionId']
         },
         Error: {
           type: 'object',
