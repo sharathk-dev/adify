@@ -4,21 +4,75 @@ import Member from '../models/Member.js';
 import Location from '../models/Location.js';
 
 /**
- * Matching engine for personalized ad recommendations
- * Uses weighted scoring system based on:
- * - Location match
- * - Time of day relevance
- * - Vehicle type relevance
- * - Day of week
+ * @swagger
+ * /recommendations/member/{memberId}:
+ *   get:
+ *     summary: Get personalized ad recommendations for a member
+ *     tags: [Recommendations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: memberId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the member
+ *       - in: query
+ *         name: locationId
+ *         schema:
+ *           type: integer
+ *         description: ID of the location (optional if member has transactions)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of ads to return
+ *     responses:
+ *       200:
+ *         description: List of recommended ads
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Ad'
+ *       400:
+ *         description: Bad request - Location ID required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Location ID is required"
+ *       404:
+ *         description: Member not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Member not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 async function getMatchedAds(req, res) {
     try {
         const { memberId } = req.params;
         const { locationId, limit = 10 } = req.query;
-        const data = await Ad.findAllAds();
-        return res.json({
-            data
-        });
+
         // Get member information
         const member = await Member.findByPk(memberId);
         if (!member) {

@@ -1,8 +1,51 @@
-
 import AdClick from '../models/AdClick.js';
 
-
-
+/**
+ * @swagger
+ * /addEvents:
+ *   post:
+ *     summary: Record an ad click event
+ *     tags: [Ad Management]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AdClick'
+ *     responses:
+ *       201:
+ *         description: Ad click recorded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Ad click recorded"
+ *       400:
+ *         description: Bad request - missing required fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "adId and memberId are required"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
 async function recordClickLogger(req, res) {
     try {
         const { adId, memberId,transactionId, isClicked} = req.body;
