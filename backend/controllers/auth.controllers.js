@@ -46,8 +46,6 @@ export const login = async (req, res) => {
         const { email, password } = req.body;
 
         const member = await Member.findOne({ where: { email } });
-        console.log("memberrrr")
-        console.log(member)
         
         if (!member) {
             throw new Error('Member not found');
@@ -72,8 +70,6 @@ export const login = async (req, res) => {
         res.status(500).json({ message: 'Error loggin in, ', error: error.message });
     }
 }
-
-
 
 export const verifyToken = (req, res, next) => {
     
