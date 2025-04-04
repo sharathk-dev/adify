@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Text, Image, Button, Flex } from "@chakra-ui/react";
-import { userDetails,trackAdView } from "../middlewares/api";
+import { userDetails, trackAdView } from "../middlewares/api";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -12,10 +12,19 @@ const ReceiptPage = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const userData = await userDetails();
-                if (userData) {
-                    setUser(userData);
+                let data = JSON.parse(localStorage.getItem("user"));
+                let userId = "";
+                let token = "";
+                if (data) {
+                    userId = data.userId;
+                    token = data.token;
+                } else {
+                    console.log("No user data found in localStorage.");
                 }
+                
+                if (!userId) return;
+                const userData = await userDetails(userId, token);
+                if (userData) setUser(userData);
             } catch (error) {
                 console.error("Error fetching user details:", error);
             }
@@ -23,7 +32,6 @@ const ReceiptPage = () => {
         fetchUser();
     }, []);
 
-    // Define the formatDate function
     const formatDate = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleString("en-US", {
@@ -35,33 +43,37 @@ const ReceiptPage = () => {
         });
     };
 
-    // Function to send API request for ad view or click
-    const sendAdEvent = async (ad, isClicked) => {
+    const sendAdEvent = async (adId, isClicked) => {
         if (!user) return;
-
         const payload = {
             transactionId: user?.recommended_ads?.transactionId || "",
-            isClicked,  // 0 for view, 1 for click
-            adId: ad?.ad_id || "",
+            isClicked,
+            adId: adId || "",
             memberId: user?.recommended_ads?.memberId || "",
         };
 
         try {
-            await trackAdView(payload);
+            let token = "";
+            if (JSON.parse(localStorage.getItem("user"))) {
+                token = JSON.parse(localStorage.getItem("user")).token;
+            } else {
+                console.log("No user data found in localStorage.");
+            }
+            await trackAdView(payload, token);
             console.log(`Ad ${isClicked ? "click" : "view"} tracked successfully:`, payload);
         } catch (error) {
             console.error(`Error tracking ad ${isClicked ? "click" : "view"}:`, error);
         }
     };
 
-    // Call API when the ad is first shown
     useEffect(() => {
         if (isAdVisible && user?.recommended_ads?.recommended_ads?.length > 0) {
-            user.recommended_ads.recommended_ads.forEach(ad => sendAdEvent(ad, 0));  // Track view event
+            user.recommended_ads.recommended_ads.forEach(ad => sendAdEvent(ad.ad_id, 0));
         }
     }, [isAdVisible, user]);
 
     const ads = user?.recommended_ads?.recommended_ads || [];
+    const defaultImage = "https://via.placeholder.com/400";
 
     const sliderSettings = {
         dots: true,
@@ -76,40 +88,12 @@ const ReceiptPage = () => {
     };
 
     return (
-        <Box
-            minH="100vh"
-            p={6}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            bgGradient="linear(to-br, #2D0C57, #8A2387)"
-        >
-            <Box
-                bg="white"
-                p={0}
-                rounded="2xl"
-                shadow="2xl"
-                maxW="md"
-                w="full"
-                border="1px solid"
-                borderColor="#5A189A"
-                overflow="hidden"
-            >
-                {/* Top Section */}
-                <Box
-                    bgSize="cover"
-                    bgPosition="center"
-                    p={10}
-                    textAlign="center"
-                    position="relative"
-                    bg="#7B2CBF"
-                >
-                    <Text fontSize="3xl" fontWeight="bold" color="white">
-                        Thank You!
-                    </Text>
+        <Box minH="100vh" display="flex" justifyContent="center" alignItems="center" bgGradient="linear(to-br, #2D0C57, #8A2387)">
+            <Box bg="white" p={0} rounded="2xl" shadow="2xl" maxW="md" w="full" border="1px solid" borderColor="#5A189A" overflow="hidden">
+                <Box bg="#7B2CBF" p={10} textAlign="center">
+                    <Text fontSize="3xl" fontWeight="bold" color="white">Thank You!</Text>
                 </Box>
 
-                {/* Receipt Content */}
                 <Box p={8}>
                     <Text fontSize="xl" fontWeight="bold" textAlign="center" color="#7B2CBF">
                         Your Parking Receipt
@@ -118,7 +102,6 @@ const ReceiptPage = () => {
                         Details of your parking at <b>PARKER STATION LOT</b>
                     </Text>
 
-                    {/* Parking Info */}
                     <Box mt={4} color="gray.700">
                         <Flex justifyContent="space-between">
                             <Text fontWeight="bold">License Plate</Text>
@@ -134,57 +117,25 @@ const ReceiptPage = () => {
                         </Flex>
                     </Box>
 
-                    {/* Payment Info */}
-                    <Button
-                        w="full"
-                        bg="white"
-                        color="#5A189A"
-                        py={3}
-                        mt={5}
-                        mb={4}
-                        border="1px solid"
-                        borderColor="#5A189A"
-                        boxShadow="inset 0px 4px 6px rgba(0, 0, 0, 0.2)"
-                        _hover={{ bg: "gray.100" }}
-                    >
+                    <Button w="full" bg="white" color="#5A189A" py={3} mt={5} mb={4} border="1px solid" borderColor="#5A189A"
+                        boxShadow="inset 0px 4px 6px rgba(0, 0, 0, 0.2)" _hover={{ bg: "gray.100" }}>
                         Paid with Google Pay
                     </Button>
 
-                    {/* Scrollable Ad Section */}
                     {isAdVisible && ads.length > 0 && (
                         <Box mt={4} w="full">
                             <Slider {...sliderSettings}>
                                 {ads.map((ad, index) => (
                                     <Box key={index} position="relative">
-                                        <a
-                                            href={ad.target_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={() => sendAdEvent(ad, 1)}  // Track click event
-                                        >
-                                            <Image
-                                                src={"https://mir-s3-cdn-cf.behance.net/project_modules/2800_opt_1/cca71160275449.5a46380807b12.jpg"}
-                                                alt={`Advertisement ${index + 1}`}
-                                                w="full"
-                                                h={40}
-                                                objectFit="cover"
-                                                cursor="pointer"
-                                            />
+                                        <a href={ad.target_url} target="_blank" rel="noopener noreferrer" onClick={() => sendAdEvent(ad.ad_id, 1)}>
+                                            <Image src={ad.image_url || defaultImage} alt={`Ad ${index + 1}`} w="full" h={40} objectFit="cover" cursor="pointer" />
                                         </a>
-                                        <Button
-                                            size="s"
-                                            position="absolute"
-                                            top={1}
-                                            right={1}
-                                            color="gray.700"
-                                            bg="gray.200"
-                                            _hover={{ bg: "gray.300" }}
-                                            _active={{ bg: "gray.400" }}
+                                        <Button size="s" position="absolute" top={1} right={1} color="gray.700" bg="gray.200"
+                                            _hover={{ bg: "gray.300" }} _active={{ bg: "gray.400" }}
                                             onClick={() => {
-                                                setIsAdVisible(false); // Close ad
-                                                sendAdEvent(ad, 1); // Track click event
-                                            }}
-                                        >
+                                                setIsAdVisible(false);
+                                                sendAdEvent(ad.ad_id, 1);
+                                            }}>
                                             ✕
                                         </Button>
                                     </Box>
@@ -193,7 +144,6 @@ const ReceiptPage = () => {
                         </Box>
                     )}
 
-                    {/* Pricing Details */}
                     <Box borderBottom="2px solid" borderColor="#5A189A" my={5} />
                     <Box color="gray.700">
                         <Flex justifyContent="space-between">
@@ -212,21 +162,10 @@ const ReceiptPage = () => {
                             <Text>Total</Text>
                             <Text>${user?.recommended_ads?.paidAmount || "0.00"}</Text>
                         </Flex>
-                        <Text fontSize="xs" color="gray.500" mt={2}>
-                            *Includes state and local taxes of $0.00
-                        </Text>
+                        <Text fontSize="xs" color="gray.500" mt={2}>*Includes state and local taxes of $0.00</Text>
                     </Box>
 
-                    {/* Close Session Button */}
-                    <Button
-                        bg="#5A189A"
-                        color="white"
-                        mt={5}
-                        w="full"
-                        size="lg"
-                        fontWeight="bold"
-                        _hover={{ bg: "#7B2CBF" }}
-                    >
+                    <Button bg="#5A189A" color="white" mt={5} w="full" size="lg" fontWeight="bold" _hover={{ bg: "#7B2CBF" }}>
                         Find your receipt
                     </Button>
                 </Box>

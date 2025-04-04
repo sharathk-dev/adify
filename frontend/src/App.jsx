@@ -1,15 +1,22 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "../components/userAuth";
+import LoginPage from "../components/login";
 import ReceiptPage from "../components/receiptPage";
+import ParkingInfo from "../components/userProfile";
 
-function App() {
+const App = () => {
   return (
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/receipt" element={<ReceiptPage />} />
+          <Route path="/checkin" element={<ParkingInfo />} />
         </Routes>
-      </Router>
+      </AuthProvider>
+    </Router>
   );
-}
+};
 
 export default App;
