@@ -246,8 +246,7 @@
         ],
         "security": [
           {
-            "Authorization": [],
-            "bearerAuth": []
+            "Authorization": []
           }
         ],
         "requestBody": {
@@ -298,6 +297,22 @@
           },
           "401": {
             "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - attempting to record clicks for another member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Forbidden: You can only record clicks for yourself"
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
             "description": "Internal server error",

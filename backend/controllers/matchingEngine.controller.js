@@ -331,6 +331,15 @@ async function getRecommendations(req, res) {
             });
         }
         
+        // Authorization check: Ensure a member can only access their own data
+        const authenticatedMemberId = req.member.id;
+        if (context.memberId != authenticatedMemberId) {
+            return res.status(403).json({ 
+                message: 'Forbidden: You can only access your own recommendations',
+                details: `Authenticated as member ${authenticatedMemberId}, but tried to access data for member ${context.memberId}`
+            });
+        }
+        
         // Get member information
         const member = await Member.findByPk(context.memberId);
         
