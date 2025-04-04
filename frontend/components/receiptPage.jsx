@@ -102,7 +102,32 @@ const ReceiptPage = () => {
 
     return (
         <Box minH="100vh" display="flex" justifyContent="center" alignItems="center" bgGradient="linear(to-br, #2D0C57, #8A2387)">
-            <Box bg="white" p={0} rounded="2xl" shadow="2xl" maxW="md" w="full" borderColor="#5A189A" overflow="hidden">
+
+            <Box
+                bg="white"
+                p={0}
+                rounded="2xl"
+                shadow="2xl"
+                maxW="md"
+                w="full"
+                borderColor="#5A189A"
+                overflow="hidden"
+                position="relative"
+            >
+                {/* Back Arrow Image */}
+                <Image
+                    src="https://icons.veryicon.com/png/o/miscellaneous/night-hunting/android-arrow-back.png"
+                    alt="Back"
+                    onClick={() => navigate("/login")}
+                    position="absolute"
+                    top="16px"
+                    left="16px"
+                    boxSize="32px"
+                    cursor="pointer"
+                    _hover={{ opacity: 0.8 }}
+                    zIndex="10"
+                />
+
                 {/* Logo */}
                 <Flex justify="center" mt={4} mb={0}>
                     <Image
@@ -113,6 +138,7 @@ const ReceiptPage = () => {
                         objectFit="contain"
                     />
                 </Flex>
+
                 <Box p={0} textAlign="center" mt={0}>
                     <Text fontSize="2xl" fontWeight="bold" color="black">
                         <b>Thank You!</b>
@@ -126,7 +152,7 @@ const ReceiptPage = () => {
                     <Box mt={4} color="gray.700">
                         <Flex justifyContent="space-between">
                             <Text fontWeight="bold">License Plate</Text>
-                            <Text>{user?.licensePlate || "N/A"}</Text>
+                            <Text>{user?.licensePlate || "ABC002"}</Text>
                         </Flex>
                         <Flex justifyContent="space-between">
                             <Text fontWeight="bold">Entered At</Text>
