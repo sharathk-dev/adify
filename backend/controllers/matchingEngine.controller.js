@@ -294,7 +294,7 @@ async function getRecommendations(req, res) {
         const getMember = await Member.findByPk(context.memberId);
         console.log("getMember")
         console.log(getMember)
-        const location = await Location.findByPk(locationId);
+        const location = await Location.findByPk(lastTransaction.locationId);
         // Prepare and return response
         const response = {
             memberId: context.memberId,
