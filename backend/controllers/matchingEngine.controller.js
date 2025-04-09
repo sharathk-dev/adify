@@ -2,6 +2,7 @@ import Ad from '../models/Ad.js';
 import Transaction from '../models/Transaction.js';
 import Member from '../models/Member.js';
 import Location from '../models/Location.js';
+import adClick from '../models/AdClick.js';
 
 /**
  * Helper function to extract recommendation context from minimal parameters
@@ -171,6 +172,41 @@ async function getLastTransactionLocation(memberId){
    }
    }
 
+   /**
+ * Calculate click count relevance score
+ * @param {Object} ad - The ad object containing clickCount
+ * @param {Number} maxClickCount - The maximum click count across all ads
+ * @returns {Number} score between 0 and 1
+ */
+   async function calculateClickCountScore(memberId, adId) {
+    try {
+        // 1. Fetch clicks for the specific ad and member
+        const adClicks = await adClick.findAll({
+            where: {
+                memberId: memberId,
+                adId: adId,
+            },
+        });
+        // 2. Count the number of clicks
+        const clickCount = adClicks.length;
+        // 3. Normalize score based on a maximum possible click count
+        let normalizedClickScore = 0;
+
+        // Define a reasonable maximum click count (adjust this based on your data)
+        const maxClickCount = 10; // Example: Adjust this based on your typical click range
+
+        if (clickCount > 0) {
+            normalizedClickScore = Math.min(1, clickCount / maxClickCount); // Cap the score at 1
+        }
+        return normalizedClickScore;
+
+    } catch (error) {
+        console.error("Error calculating click count score:", error);
+        return 0; // Return 0 in case of error
+    }
+}
+
+
 async function getRecommendations(req, res) {
     try {
         const { memberId, transactionId, locationId, limit = 5 } = req.query;
@@ -249,26 +285,26 @@ async function getRecommendations(req, res) {
         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
         
         // Score and rank ads
-        const scoredAds = allAds.map(ad => {
+        const scoredAdsPromises = allAds.map(async ad => {
             const plainAd = ad.get({ plain: true });
-            
-            // Parse locationIds (handle both string and array formats)
+
             const adLocationIds = typeof plainAd.locationIds === 'string'
                 ? JSON.parse(plainAd.locationIds)
                 : plainAd.locationIds || [];
-                
             // Calculate individual scores
             const locationScore = calculateLocationScore(adLocationIds, context.locationId);
             const timeScore = calculateTimeScore(plainAd.categoryId, timeOfDay, hour);
             const vehicleScore = calculateVehicleScore(plainAd.categoryId, vehicles, allVehicleDetails);
             const dayScore = calculateDayScore(plainAd.categoryId, isWeekend);
+            const normalizedClickScore = await calculateClickCountScore(memberId, plainAd.id);
 
             // Calculate weighted final score (adjust weights based on importance)
             const finalScore = (
                 (locationScore * 0.4) +    // Location is very important (40%)
                 (timeScore * 0.3) +        // Time of day is important (30%)
                 (vehicleScore * 0.2) +     // Vehicle type has medium importance (20%)
-                (dayScore * 0.1)           // Day of week has lower importance (10%)
+                (dayScore * 0.1)  +    // Day of week has lower importance (10%)
+                (normalizedClickScore * 0.6)
             );
             
             return {
@@ -278,22 +314,23 @@ async function getRecommendations(req, res) {
                     locationScore,
                     timeScore,
                     vehicleScore,
-                    dayScore
+                    dayScore,
+                    clickCountScore : normalizedClickScore
                 }
             };
         });
         
+        const scoredAds = await Promise.all(scoredAdsPromises);
         // Sort by score (descending) and get top N ads
+        console.log("scoredAds")
+        console.log(scoredAds)
+        console.log("scoredAds")
         const recommendations = scoredAds
             .sort((a, b) => b.relevanceScore - a.relevanceScore)
             .slice(0, parseInt(limit));
         
         const lastTransaction = await getLastTransactionLocation(memberId)
-        console.log("lastTransactionnnn")
-        console.log(lastTransaction)
         const getMember = await Member.findByPk(context.memberId);
-        console.log("getMember")
-        console.log(getMember)
         const location = await Location.findByPk(lastTransaction.locationId);
         // Prepare and return response
         const response = {
