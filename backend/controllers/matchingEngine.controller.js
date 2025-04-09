@@ -159,7 +159,7 @@ async function getLastTransactionLocation(memberId){
            "exitTime":lastTransaction.exitTime,
            "discount":lastTransaction.discount,
            "transactionId":lastTransaction.id,
-        //    "contact":,
+           "locationId":lastTransaction.locationId,
            "licensePlate":lastTransaction.vehicleNumber,
         //    "firstName":,
         //    "lastName":,
