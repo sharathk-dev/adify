@@ -289,7 +289,11 @@ async function getRecommendations(req, res) {
             .slice(0, parseInt(limit));
         
         const lastTransaction = await getLastTransactionLocation(memberId)
+        console.log("lastTransactionnnn")
+        console.log(lastTransaction)
         const getMember = await Member.findByPk(context.memberId);
+        console.log("getMember")
+        console.log(getMember)
         const location = await Location.findByPk(locationId);
         // Prepare and return response
         const response = {
@@ -310,10 +314,13 @@ async function getRecommendations(req, res) {
             exitTime:lastTransaction.exitTime,
             discount:lastTransaction.paidAdiscountmount,
             transactionId:lastTransaction.transactionId,
-            vehicleNumber:lastTransaction.vehicleDetails,
+            licensePlate:lastTransaction.licensePlate,
             cardDetails:getMember.cardDetails,
             locationName:location.name,
-            count: recommendations.length
+            count: recommendations.length,
+            contactNumber : getMember.contact,
+            name:getMember.name,
+            userId:getMember.id
         };
         
         // Add transaction-specific context if available
