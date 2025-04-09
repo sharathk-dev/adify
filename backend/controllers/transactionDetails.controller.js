@@ -27,7 +27,7 @@ export const transactionDetails = async (req, res) => {
 
         res.status(200).json({
             message: 'Transaction and Member created successfully',
-            data: { transaction: newTransaction.toJSON(), member: newMember.toJSON() } // Send back data
+            data: { transaction: newTransaction.toJSON() } // Send back data
         });
     } catch (error) {
 
