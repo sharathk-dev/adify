@@ -18,9 +18,9 @@ const Member = sequelize.define('Member', {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
-            validate: {
-                isPhone: true
-            }
+            // validate: {
+            //     isPhone: true
+            // }
         },
         password: {
             type: DataTypes.STRING,

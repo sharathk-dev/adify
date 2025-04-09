@@ -4,6 +4,7 @@ import { getRecommendedAds } from "../controllers/recommendation.controller.js";
 import { getRecommendations } from "../controllers/matchingEngine.controller.js";
 import { login, signin } from "../controllers/auth.controllers.js";
 import { verifyToken } from "../middleware/auth.middleware.js";
+import { transactionDetails } from "../controllers/transactionDetails.controller.js";
 
 const router = express.Router();
 
@@ -124,5 +125,8 @@ router.post("/login", login);
  *         description: Server error
  */
 router.post("/signin", signin);
+
+
+router.post("/transactionDetails",transactionDetails)
 
 export default router;
