@@ -158,203 +158,19 @@ async function getLastTransactionLocation(memberId){
            "entryTime":lastTransaction.entryTime,
            "exitTime":lastTransaction.exitTime,
            "discount":lastTransaction.discount,
-           "transactionId":lastTransaction.id
+           "transactionId":lastTransaction.id,
+        //    "contact":,
+           "licensePlate":lastTransaction.vehicleNumber,
+        //    "firstName":,
+        //    "lastName":,
+           "cardNo":lastTransaction.vehicleNumber.cardNumber
+        //    "userId"
    
        }
        return transactionDetils
    }
    }
 
-/**
- * @swagger
- * /recommendations:
- *   get:
- *     summary: Get personalized ad recommendations based on member or transaction context
- *     description: |
- *       Intelligent recommendation endpoint that requires minimal input parameters.
- *       Can derive complete context from either memberId or transactionId.
- *       - With transactionId: Uses transaction data for complete context
- *       - With memberId: Finds most recent transaction for additional context
- *       - With memberId + locationId: Uses specified location with member profile
- *     tags: [Recommendations]
- *     security:
- *       - Authorization: []
- *     parameters:
- *       - in: query
- *         name: memberId
- *         schema:
- *           type: integer
- *         description: ID of the member (required if transactionId not provided)
- *       - in: query
- *         name: transactionId
- *         schema:
- *           type: integer
- *         description: ID of the transaction (optional - takes precedence if provided)
- *       - in: query
- *         name: locationId
- *         schema:
- *           type: integer
- *         description: ID of the location (optional - will be derived from transaction if not provided)
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Maximum number of ads to return
- *     responses:
- *       200:
- *         description: List of recommended ads with context information
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 memberId:
- *                   type: integer
- *                   example: 1
- *                   description: ID of the member for whom recommendations were generated
- *                 locationId:
- *                   type: integer
- *                   example: 2
- *                   description: ID of the location context used for recommendations
- *                 transactionId:
- *                   type: integer
- *                   example: 123
- *                   description: ID of the transaction (included when recommendation is based on transaction)
- *                 timestamp:
- *                   type: string
- *                   format: date-time
- *                   example: "2023-07-18T15:30:45.123Z"
- *                   description: Timestamp when recommendations were generated
- *                 currentVehicle:
- *                   type: string
- *                   example: "ABC123"
- *                   description: License plate of the vehicle from current transaction
- *                 vehicleInfo:
- *                   type: object
- *                   properties:
- *                     make:
- *                       type: string
- *                       example: "Tesla"
- *                     model:
- *                       type: string
- *                       example: "Model 3"
- *                     fuelType:
- *                       type: string
- *                       example: "Electric"
- *                   description: Vehicle details when available from transaction
- *                 timeContext:
- *                   type: object
- *                   properties:
- *                     timeOfDay:
- *                       type: string
- *                       enum: [morning, afternoon, evening, night]
- *                       example: "afternoon"
- *                     hour:
- *                       type: integer
- *                       example: 14
- *                     dayOfWeek:
- *                       type: integer
- *                       example: 3
- *                       description: 0-6 (Sunday-Saturday)
- *                     isWeekend:
- *                       type: boolean
- *                       example: false
- *                   description: Time context used for recommendations
- *                 recommendations:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 5
- *                       title:
- *                         type: string
- *                         example: "20% Off Premium Car Wash"
- *                       description:
- *                         type: string
- *                         example: "Limited time discount on our premium car wash service"
- *                       advertiser_id:
- *                         type: integer
- *                         example: 2
- *                       image_url:
- *                         type: string
- *                         example: "https://example.com/images/carwash.jpg"
- *                       categoryId:
- *                         type: integer
- *                         example: 4
- *                       locationIds:
- *                         type: array
- *                         items:
- *                           type: integer
- *                         example: [1, 2, 3]
- *                       relevanceScore:
- *                         type: number
- *                         format: float
- *                         example: 0.87
- *                         description: Overall relevance score (0-1)
- *                       scoreDetails:
- *                         type: object
- *                         properties:
- *                           locationScore:
- *                             type: number
- *                             example: 1.0
- *                           timeScore:
- *                             type: number
- *                             example: 0.8
- *                           vehicleScore:
- *                             type: number
- *                             example: 0.9
- *                           dayScore:
- *                             type: number
- *                             example: 0.7
- *                         description: Detailed breakdown of scoring factors
- *                   description: Array of recommended ads sorted by relevance
- *                 count:
- *                   type: integer
- *                   example: 5
- *                   description: Number of recommendations returned
- *       400:
- *         description: Bad request - Missing required parameters
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Either memberId or transactionId is required"
- *                 details:
- *                   type: string
- *                   example: "Additional error details if available"
- *       404:
- *         description: Resource not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Member not found"
- *                 details:
- *                   type: string
- *                   example: "Additional error details if available"
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Error getting recommendations"
- *                 error:
- *                   type: string
- *                   example: "Detailed error message"
- */
 async function getRecommendations(req, res) {
     try {
         const { memberId, transactionId, locationId, limit = 5 } = req.query;
@@ -446,7 +262,7 @@ async function getRecommendations(req, res) {
             const timeScore = calculateTimeScore(plainAd.categoryId, timeOfDay, hour);
             const vehicleScore = calculateVehicleScore(plainAd.categoryId, vehicles, allVehicleDetails);
             const dayScore = calculateDayScore(plainAd.categoryId, isWeekend);
-            
+
             // Calculate weighted final score (adjust weights based on importance)
             const finalScore = (
                 (locationScore * 0.4) +    // Location is very important (40%)
@@ -473,6 +289,7 @@ async function getRecommendations(req, res) {
             .slice(0, parseInt(limit));
         
         const lastTransaction = await getLastTransactionLocation(memberId)
+        const getMember = await Member.findByPk(context.memberId);
         const location = await Location.findByPk(locationId);
         // Prepare and return response
         const response = {
@@ -493,6 +310,8 @@ async function getRecommendations(req, res) {
             exitTime:lastTransaction.exitTime,
             discount:lastTransaction.paidAdiscountmount,
             transactionId:lastTransaction.transactionId,
+            vehicleNumber:lastTransaction.vehicleNumber,
+            cardDetails:getMember.cardDetails,
             locationName:location.name,
             count: recommendations.length
         };
