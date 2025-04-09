@@ -310,7 +310,7 @@ async function getRecommendations(req, res) {
             exitTime:lastTransaction.exitTime,
             discount:lastTransaction.paidAdiscountmount,
             transactionId:lastTransaction.transactionId,
-            vehicleNumber:lastTransaction.vehicleNumber,
+            vehicleNumber:lastTransaction.vehicleDetails,
             cardDetails:getMember.cardDetails,
             locationName:location.name,
             count: recommendations.length
