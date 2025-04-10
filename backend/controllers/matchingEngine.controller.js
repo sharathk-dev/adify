@@ -338,6 +338,24 @@ async function getRecommendations(req, res) {
                 },
             });
         }
+        const adClicks = await adClick.findAll({
+            where: {
+                memberId: memberId,
+                adId: adId,
+            },
+        });
+        // 2. Count the number of clicks
+        const clickCount = adClicks.length;
+        if(clickCount > 0){
+            recommendations = await Ad.findAll({
+                where: {
+                    id: {
+                        [Op.in]: [ 3, 4, 5],
+                    },
+                },
+            });
+
+        }
 
 
         const getMember = await Member.findByPk(context.memberId);
