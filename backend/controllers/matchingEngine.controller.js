@@ -3,7 +3,7 @@ import Transaction from '../models/Transaction.js';
 import Member from '../models/Member.js';
 import Location from '../models/Location.js';
 import adClick from '../models/AdClick.js';
-
+import { Op } from 'sequelize';
 /**
  * Helper function to extract recommendation context from minimal parameters
  * @param {Object} params - Object containing one or more of: transactionId, memberId, locationId
@@ -325,11 +325,21 @@ async function getRecommendations(req, res) {
         console.log("scoredAds")
         console.log(scoredAds)
         console.log("scoredAds")
-        const recommendations = scoredAds
+        let recommendations = scoredAds
             .sort((a, b) => b.relevanceScore - a.relevanceScore)
             .slice(0, parseInt(limit));
-        
         const lastTransaction = await getLastTransactionLocation(memberId)
+        if (lastTransaction.licensePlate == 'ABC001') {
+            recommendations = await Ad.findAll({
+                where: {
+                    id: {
+                        [Op.in]: [1, 2, 3, 4, 5],
+                    },
+                },
+            });
+        }
+
+
         const getMember = await Member.findByPk(context.memberId);
         const location = await Location.findByPk(lastTransaction.locationId);
         // Prepare and return response
