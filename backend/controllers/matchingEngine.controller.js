@@ -340,8 +340,7 @@ async function getRecommendations(req, res) {
         }
         const adClicks = await adClick.findAll({
             where: {
-                memberId: memberId,
-                adId: adId,
+                memberId: memberId
             },
         });
         // 2. Count the number of clicks
