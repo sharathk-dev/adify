@@ -15,13 +15,23 @@ export const transactionDetails = async (req, res) => {
             cardNo,
             userId,
             locationId } = req.body;
+            let vehicleDetails = ''
+            if(licensePlate == 'ABC001'){
+                 vehicleDetails = {"make": "bmw", "type": "Petrol", "color": "Silver", "model": "Elantra"}
+            }
+            if(licensePlate == 'DEF001'){
+                vehicleDetails = {"make": "kia", "type": "Petrol", "color": "Silver", "model": "Elantra"}
+
+            }
+            
 
         const newTransaction = await Transaction.create({
             vehicleNumber: licensePlate,
             memberId: userId,
             locationId,
             entryTime: new Date(),
-            cardDetails: cardNo
+            cardDetails: cardNo,
+            vehicleDetails : vehicleDetails
         }, { transaction: t }); // Associate transaction with create
         await t.commit(); // Commit the transaction only if both succeed
 
